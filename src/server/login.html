@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gods Eye</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #000000, #1b1d23);
+            font-family: Arial, sans-serif;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.1);
+            /* Slight transparency */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            color: #FFF;
+            /* White text */
+        }
+
+        .company-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .company-logo img {
+            max-width: 100px;
+            /* Adjust based on logo size */
+            height: auto;
+        }
+
+        .product-name {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            /* Adjust based on preference */
+            font-weight: bold;
+        }
+
+        .form-input {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-input input {
+            width: 100%;
+            padding: 10px 30px 10px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background: transparent;
+            /* Transparency for input */
+            color: #FFF;
+            /* White text */
+        }
+
+        .form-input i {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: rgb(21, 97, 239);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            form {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <form id="loginForm">
+        <div class="product-name">God's Eye</div>
+        <div class="form-input">
+            <input type="text" id="username" name="username" placeholder="Username" aria-label="Username" required>
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="form-input">
+            <input type="password" id="password" name="password" placeholder="Password" aria-label="Password" required>
+            <i class="fas fa-lock"></i>
+        </div>
+        <button type="button" onclick="validateAndSubmitForm()">Login</button>
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script>
+        function validateAndSubmitForm() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            if (username.trim() === "" || password.trim() === "") {
+                alert("Both username and password are required!");
+                return false;
+            }
+            var hashedPassword = CryptoJS.SHA256(password).toString();
+
+            // Assemble data to send
+            var data = JSON.stringify({
+                username: username,
+                password: hashedPassword  // Consider sending the hash for additional security
+            });
+
+            // Create an AJAX request to send the data
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/login", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    alert("Login successful");
+                } else if (xhr.readyState === 4) {
+                    alert("Login failed: " + xhr.responseText);
+                }
+            };
+            xhr.send(data);
+
+            return false; // Prevent the form from submitting traditionally
+        }
+    </script>
+</body>
+
+</html>
