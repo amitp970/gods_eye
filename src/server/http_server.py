@@ -3,7 +3,6 @@ import re
 import sqlite3
 import bcrypt
 import json  # Assuming JSON data for POST requests
-from mysql.connector import Error
 import threading
 import time
 from hashlib import sha256
@@ -76,7 +75,7 @@ def add_user(username, password):
             query = "INSERT INTO users (username, password) VALUES (%s, %s)"
             cursor.execute(query, (username, password))
             conn.commit()
-    except Error as e:
+    except Exception as e:
         print(e)
     finally:
         conn.close()
@@ -94,7 +93,7 @@ def verify_user(username, password):
             stored_password = record[0]
             user_exists = bcrypt.checkpw(password=password.encode(), hashed_password=stored_password)
 
-    except Error as e:
+    except Exception as e:
         print(e)
     finally:
         conn.close()
@@ -155,7 +154,9 @@ def handle_post_request(resource, data, client_socket):
         if verify_user(username, password):
             session_id = generate_session_id()
             # Set cookie in the response
-            send_response(302, 'text/html', '<html><body>Login successful. Redirecting...</body></html>', client_socket, additional_headers={'Set-Cookie': f'session_id={session_id}; Path=/', 'Location': '/home.html'})
+            send_response(302, 'text/javascript', 
+                          """<html><body>Login successful. Redirecting...</body></html>""",
+                            client_socket, additional_headers={'Set-Cookie': f'session_id={session_id}; Path=/', 'Location': '/home.html'})
         else:
             send_response(401, 'application/json', json.dumps({'message': 'Unauthorized'}), client_socket)
     elif resource == '/signup':
@@ -192,7 +193,7 @@ def handle_client(client_socket):
         else:  # Defaults to GET for simplicity
             handle_get_request(resource, client_socket)
     else:
-        send_response(400, 'text/html', b'Bad Request', client_socket)
+        send_response(400, 'text/html', 'Bad Request', client_socket)
     
     client_socket.close()
 
