@@ -1,7 +1,7 @@
 import bcrypt
 
-from src.server.db.users_db_manager import UsersDbManager
-from session_manager import SessionManager
+from db.users_db_manager import UsersDbManager
+from .session_manager import SessionManager
 
 class Verifier:
     def __init__(self):

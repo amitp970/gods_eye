@@ -50,7 +50,7 @@ def create_connection():
     try:
         conn = sqlite3.connect(DB_FILE)
         return conn
-    except Error as e:
+    except Exception as e:
         print(e)
     return None
 

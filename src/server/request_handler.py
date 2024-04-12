@@ -1,8 +1,6 @@
 import os
 import mimetypes
 import urllib.parse
-import json
-from src.server.auth.verifier import Verifier
 from functions import Functions
 
 EXTENSION_CONTENT_DICT = {'text/html' : 'r', 'image/jpeg' : 'rb',
@@ -46,23 +44,33 @@ class RequestHandler:
     def handle_request(self):
         if self.method == 'GET':
             return self.handle_get_request()
+        elif self.method == 'POST':
+            return self.handle_post_request()
         else:
-            # Placeholder for handling other HTTP methods like POST
             return self.method_not_allowed()
 
     def handle_get_request(self):
-        # Serving files from the server root directory
-        file_path = self.server_root + self.path
-        if os.path.isdir(file_path):
-            file_path += 'index.html'  # Serve the index file if the path is a directory
-        if not os.path.exists(file_path):
-            return self.not_found()
-        return self.serve_file(file_path)
-    
+        # NOTE: figure out whether the resource is a file or a function
+
+        if self.path == '/' or os.path.isfile(self.server_root + self.path):
+            # Serving files from the server root directory
+            file_path = self.server_root + self.path
+            if os.path.isdir(file_path):
+                file_path += 'login.html'  # Serve the login file if the path is a directory
+            if not os.path.exists(file_path):
+                return self.not_found()
+            return self.serve_file(file_path)
+        else:
+            if self.path in ROUTING_DICT:
+                return self.generate_response(**ROUTING_DICT[self.path]())
+            else:
+                return self.method_not_allowed()
+            
     def handle_post_request(self):
         if self.path in ROUTING_DICT:
-            ROUTING_DICT[self.path](headers=self.headers, body=self.body)
-
+            return self.generate_response(**ROUTING_DICT[self.path](headers=self.headers, body=self.body))
+        else:
+            return self.method_not_allowed()
 
     def serve_file(self, file_path):
         mime_type, _ = mimetypes.guess_type(file_path)
@@ -86,3 +94,14 @@ class RequestHandler:
 
     def internal_server_error(self):
         return f'{self.protocol} 500 Internal Server Error\r\nConnection: close\r\n\r\n'.encode('utf-8')
+    
+
+    def generate_response(self, code, content_type, data, additional_headers=None):
+        mode = EXTENSION_CONTENT_DICT[content_type]
+        print(f"{content_type} : {mode}")
+        if 'b' not in mode:
+            data = data.encode('utf-8')  # Ensure the data is bytes
+        headers = {**{'Content-Type': content_type, 'Content-Length': str(len(data))}, **(additional_headers if additional_headers else {})}
+        header = f"{self.protocol} {code} OK\r\n" + "\r\n".join([f"{key}: {value}" for key, value in headers.items()]) + "\r\n\r\n"
+
+        return header.encode('utf-8') + data

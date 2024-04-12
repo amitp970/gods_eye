@@ -1,4 +1,4 @@
-from database_manager import DatabaseManager
+from .database_manager import DatabaseManager 
 
 class UsersDbManager:
     def __init__(self):
