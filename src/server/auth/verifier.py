@@ -7,8 +7,9 @@ class Verifier:
     def __init__(self):
         self.db_manager = UsersDbManager()
         self.session_manager = SessionManager()
+        self.add_user('admin', 'golan', role=0)
     
-    def add_user(self, username, password):
+    def add_user(self, username, password, role=1):
         
         # Check if user exists
         record = self.db_manager.get_user_password(username)
@@ -16,7 +17,7 @@ class Verifier:
         if not record:
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-            self.db_manager.insert_user(username, hashed_password.decode())
+            self.db_manager.insert_user(username, hashed_password.decode(), role)
             return True, "Success: User added"
         else:
             return False, "Failed: username already exists"
@@ -33,6 +34,20 @@ class Verifier:
             return False, "Failed: username doesn't exists"
                     
         return is_verified, None
+    
+    def check_role(self, session_id, required_role):
+        username = self.session_manager.find_user(session_id)
+
+        record = self.db_manager.get_user_role(username)
+
+        if record:
+            user_role = record[0]
+
+            return user_role <= required_role
+        else:
+            return False
+
+
 
     def generate_session(self, username):
         return self.session_manager.generate_session_id(username)

@@ -30,3 +30,7 @@ class SessionManager:
     def destroy_session(self, session_id):
         if session_id in self.sessions:
             del self.sessions[session_id]
+    
+    def find_user(self, session_id):
+        if session_id in self.sessions:
+            return self.sessions[session_id]['username']

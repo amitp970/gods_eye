@@ -1,12 +1,52 @@
 import json
 from auth.verifier import Verifier
+import re
 
+ROUTING_DICT = {}
 
 verifier = Verifier()
 
 class Functions:
-        
+
     @staticmethod
+    def role(required_role):
+        def decorator(func):
+            def check_cookie(*args, **kwargs):
+                try:
+                    headers = kwargs['headers']
+
+                    cookies = headers['Cookie'].split('; ')
+                    cookies = {key : value for key, value in [item.split('=', 1) for item in cookies]}
+
+                    session_id = cookies['session_id']
+
+                    if verifier.check_role(session_id, required_role):
+                        return func(*args, **kwargs)
+                except Exception as e:
+                    print(e)
+
+                return (lambda: {
+                    'code' : 401,
+                    'content_type' : 'application/json',
+                    'data' : json.dumps({'message': 'Unauthorized to access resource'}),
+                })()
+                
+            return check_cookie
+        return decorator
+                
+    @staticmethod
+    def route(route):
+        def router(func):
+            ROUTING_DICT[route] = func
+
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            
+            return wrapper
+        return router
+
+    @staticmethod
+    @route("/login")
     def login(*args, **kwargs):
 
         body = kwargs['body']
@@ -32,8 +72,11 @@ class Functions:
                 'content_type' : 'application/json',
                 'data' : json.dumps({'message': 'Unauthorized'}),
             }
-        
+    
+
     @staticmethod
+    @route("/signup")
+    @role(0)
     def signup(*args, **kwargs):
         
         body = kwargs['body']
@@ -41,3 +84,21 @@ class Functions:
 
         username = data_dict['username']
         password = data_dict['password']
+
+        is_success, msg = verifier.add_user(username, password)
+
+        if is_success:
+            return {
+                'code' : 302,
+                'content_type' : 'text/javascript',
+                'data' : """<html><body>User creation successful. Redirecting...</body></html>""",
+                'additional_headers' : {
+                    'Location': '/login.html'
+                    }
+            }
+        else:
+            return {
+                'code' : 401,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': f'{msg}'}),
+            }

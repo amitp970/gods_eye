@@ -3,14 +3,17 @@ import mimetypes
 import urllib.parse
 from functions import Functions
 
+
+from functions import ROUTING_DICT
+
 EXTENSION_CONTENT_DICT = {'text/html' : 'r', 'image/jpeg' : 'rb',
                           'text/javascript' : 'r', 'text/css' : 'r', 
                           'image/png' : 'rb', 'application/json' : 'r'}
 
-ROUTING_DICT = {
-    # 'URL' : FUNC,...
-    '/login' : Functions.login
-}
+
+PRIVATE_PATH = '/private'
+PUBLIC_PATH  = '/public'
+
 
 class RequestHandler:
     
@@ -18,9 +21,11 @@ class RequestHandler:
         self.request_data = request_data
         self.server_root = server_root
         self.method, self.path, self.protocol = self.parse_request_line()
+
+        if self.path == '/':
+            self.path = '/index.html'
         
-        if self.method == 'POST':
-            self.headers, self.body = self.parse_headers_and_body()
+        self.headers, self.body = self.parse_headers_and_body()
 
     def parse_request_line(self):
         request_line = self.request_data.split('\r\n')[0]
@@ -48,24 +53,38 @@ class RequestHandler:
             return self.handle_post_request()
         else:
             return self.method_not_allowed()
+        
+    def get_resource_access_parameter(self):
+        private_path = self.server_root + PRIVATE_PATH + self.path
+        public_path = self.server_root + PUBLIC_PATH + self.path
+
+        if os.path.isfile(private_path):
+            return PRIVATE_PATH, private_path
+        elif os.path.isfile(public_path):
+            return PUBLIC_PATH, public_path
+        
+        return None, ''
 
     def handle_get_request(self):
         # NOTE: figure out whether the resource is a file or a function
+        # NOTE: discern between private and public resources
 
-        if self.path == '/' or os.path.isfile(self.server_root + self.path):
-            # Serving files from the server root directory
-            file_path = self.server_root + self.path
-            if os.path.isdir(file_path):
-                file_path += 'login.html'  # Serve the login file if the path is a directory
-            if not os.path.exists(file_path):
-                return self.not_found()
+        access_parameter, file_path = self.get_resource_access_parameter()
+
+        if access_parameter == PRIVATE_PATH:
+            return self.handle_private_resource_request(file_path, headers=self.headers)
+        elif access_parameter == PUBLIC_PATH:
             return self.serve_file(file_path)
         else:
             if self.path in ROUTING_DICT:
-                return self.generate_response(**ROUTING_DICT[self.path]())
-            else:
-                return self.method_not_allowed()
+                return self.generate_response(**ROUTING_DICT[self.path](headers=self.headers))
             
+        return self.not_found()
+    
+    @Functions.role(1)
+    def handle_private_resource_request(self, file_path, *args, **kwargs):
+        return self.serve_file(file_path)
+
     def handle_post_request(self):
         if self.path in ROUTING_DICT:
             return self.generate_response(**ROUTING_DICT[self.path](headers=self.headers, body=self.body))

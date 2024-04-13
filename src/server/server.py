@@ -6,7 +6,7 @@ import base64
 from request_handler import RequestHandler
 
 class Server:
-    def __init__(self, ip='0.0.0.0', port=8430, root='./src/server/files'):
+    def __init__(self, ip='0.0.0.0', port=80, root='./src/server/files'):
         self.ip = ip
         self.port = port
         self.root = root
