@@ -21,6 +21,7 @@ class RequestHandler:
         self.request_data = request_data
         self.server_root = server_root
         self.method, self.path, self.protocol = self.parse_request_line()
+        self.path, self.parameters = self.parse_path_parameters()
 
         if self.path == '/':
             self.path = '/index.html'
@@ -31,6 +32,13 @@ class RequestHandler:
         request_line = self.request_data.split('\r\n')[0]
         method, path, protocol = request_line.split(' ')
         return method, urllib.parse.unquote(path), protocol
+    
+    def parse_path_parameters(self):
+        path, parameters = self.path.split('?')
+
+        parameters = {arg : val for arg, val in [param.split('=') for param in parameters.split('&')]}
+
+        return path, parameters
     
     def parse_headers_and_body(self):
         parts = self.request_data.split('\r\n\r\n', 1)
@@ -79,7 +87,7 @@ class RequestHandler:
             response_dict = self.serve_file(file_path)
         else:
             if self.path in ROUTING_DICT:
-                response_dict = ROUTING_DICT[self.path](headers=self.headers)
+                response_dict = ROUTING_DICT[self.path](headers=self.headers, parameters=self.parameters)
 
         if response_dict:
             return self.generate_response(**response_dict)
@@ -92,7 +100,7 @@ class RequestHandler:
 
     def handle_post_request(self):
         if self.path in ROUTING_DICT:
-            return self.generate_response(**ROUTING_DICT[self.path](headers=self.headers, body=self.body))
+            return self.generate_response(**ROUTING_DICT[self.path](headers=self.headers, body=self.body, parameters=self.parameters))
         else:
             return self.not_found()
 
