@@ -71,13 +71,18 @@ class RequestHandler:
 
         access_parameter, file_path = self.get_resource_access_parameter()
 
+        response_dict = {}
+
         if access_parameter == PRIVATE_PATH:
-            return self.handle_private_resource_request(file_path, headers=self.headers)
+            response_dict = self.handle_private_resource_request(file_path, headers=self.headers)
         elif access_parameter == PUBLIC_PATH:
-            return self.serve_file(file_path)
+            response_dict = self.serve_file(file_path)
         else:
             if self.path in ROUTING_DICT:
-                return self.generate_response(**ROUTING_DICT[self.path](headers=self.headers))
+                response_dict = ROUTING_DICT[self.path](headers=self.headers)
+
+        if response_dict:
+            return self.generate_response(**response_dict)
             
         return self.not_found()
     
@@ -89,17 +94,23 @@ class RequestHandler:
         if self.path in ROUTING_DICT:
             return self.generate_response(**ROUTING_DICT[self.path](headers=self.headers, body=self.body))
         else:
-            return self.method_not_allowed()
+            return self.not_found()
 
     def serve_file(self, file_path):
+        response = {}
+
         mime_type, _ = mimetypes.guess_type(file_path)
+
+
         try:
             with open(file_path, 'rb') as file:
                 file_content = file.read()
-                response = f'{self.protocol} 200 OK\r\n'
-                response += f'Content-Type: {mime_type}\r\n'
-                response += 'Connection: close\r\n\r\n'
-                response = response.encode('utf-8') + file_content
+
+                response = {
+                    'code' : 200,
+                    'content_type' : mime_type,
+                    'data' : file_content,
+                }
                 return response
         except Exception as e:
             print(f"Error serving file: {e}")
@@ -116,10 +127,9 @@ class RequestHandler:
     
 
     def generate_response(self, code, content_type, data, additional_headers=None):
-        mode = EXTENSION_CONTENT_DICT[content_type]
-        print(f"{content_type} : {mode}")
-        if 'b' not in mode:
+        if not isinstance(data, bytes):
             data = data.encode('utf-8')  # Ensure the data is bytes
+
         headers = {**{'Content-Type': content_type, 'Content-Length': str(len(data))}, **(additional_headers if additional_headers else {})}
         header = f"{self.protocol} {code} OK\r\n" + "\r\n".join([f"{key}: {value}" for key, value in headers.items()]) + "\r\n\r\n"
 

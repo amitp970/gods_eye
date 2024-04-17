@@ -47,13 +47,12 @@ class Verifier:
         else:
             return False
 
-
-
     def generate_session(self, username):
         return self.session_manager.generate_session_id(username)
 
     def check_session(self, session_id):
         return self.session_manager.is_session_valid(session_id)
     
+
 
     

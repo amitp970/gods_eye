@@ -20,7 +20,7 @@ class Functions:
 
                     session_id = cookies['session_id']
 
-                    if verifier.check_role(session_id, required_role):
+                    if verifier.check_role(session_id, required_role) and verifier.check_session(session_id):
                         return func(*args, **kwargs)
                 except Exception as e:
                     print(e)
@@ -102,3 +102,5 @@ class Functions:
                 'content_type' : 'application/json',
                 'data' : json.dumps({'message': f'{msg}'}),
             }
+    
+

@@ -1,11 +1,11 @@
-from .database_manager import DatabaseManager 
+from .database_manager import db_manager
 
 class UsersDbManager:
     def __init__(self):
-        self.db_manager = DatabaseManager()
-        self.initialize_db()
+        self.db_manager = db_manager
+        self.initialize_users_table()
 
-    def initialize_db(self):
+    def initialize_users_table(self):
         """Create users table if it doesn't exist."""
         self.db_manager.execute_update('''CREATE TABLE IF NOT EXISTS users (
                             username TEXT PRIMARY KEY,
@@ -22,5 +22,4 @@ class UsersDbManager:
         return self.db_manager.execute_query_one("SELECT role FROM users WHERE username = ?", (username,))
     
     def delete_user(self, username):
-        # NOTE: might need this in the future
-        pass
+        self.db_manager.execute_update("DELETE FROM users WHERE username = ?", (username,))

@@ -31,3 +31,6 @@ class DatabaseManager:
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
+
+
+db_manager = DatabaseManager()
