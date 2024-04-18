@@ -5,7 +5,7 @@ import socket
 import os
 import threading
 
-from camera_connection import CameraConnection
+from src.server.camera_connections import CameraConnections, PORT, IP
 
 ROUTING_DICT = {}
 
@@ -108,37 +108,28 @@ class Functions:
                 'data' : json.dumps({'message': f'{msg}'}),
             }
     
-    @staticmethod
-    @route("/create_camera_connection")
-    @role(0)
-    def create_camera_connection(*args, **kwargs):
-        try:
-            parameters = kwargs['parameters']
+    # @staticmethod
+    # @route("/create_camera_connection")
+    # @role(0)
+    # def create_camera_connection(*args, **kwargs):
+    #     try:
+    #         parameters = kwargs['parameters']
 
-            location = parameters.get('location', None)
+    #         location = parameters.get('location', None)
 
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #         t = threading.Thread(target=camera_connections.add_connection)
+    #         t.start()
 
-            sock.bind(('127.0.0.1', 0))
+    #         return {
+    #             'code' : 200,
+    #             'content_type' : 'application/json',
+    #             'data' : json.dumps({'ip' : IP, 'port' : PORT})
+    #         }
+    #     except Exception as e:
+    #         print(e)
 
-            port = sock.getsockname()[1]
-            ip = socket.gethostbyname(socket.gethostname())
-
-            camera_connection = CameraConnection(location=location, sock=sock)
-
-            t = threading.Thread(target=camera_connection.start)
-            t.start()
-
-            return {
-                'code' : 200,
-                'content_type' : 'application/json',
-                'data' : json.dumps({'ip' : ip, 'port' : port})
-            }
-        except Exception as e:
-            print(e)
-
-            return {
-                'code' : 500,
-                'content_type' : 'application/json',
-                'data' : json.dumps({'message': 'could not establish connection'}),
-            }
+    #         return {
+    #             'code' : 500,
+    #             'content_type' : 'application/json',
+    #             'data' : json.dumps({'message': 'could not establish connection'}),
+    #         }
