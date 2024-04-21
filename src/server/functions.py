@@ -1,15 +1,21 @@
 import json
-from auth.verifier import Verifier
+from .auth.verifier import Verifier
 import re
 import socket
 import os
 import threading
 
-from src.server.camera_connections import CameraConnections, PORT, IP
+from .camera_connections.camera_radar import CameraRadar
+
 
 ROUTING_DICT = {}
 
 verifier = Verifier()
+
+radar = CameraRadar()
+radar.start()
+
+
 
 class Functions:
 
@@ -49,18 +55,29 @@ class Functions:
             
             return wrapper
         return router
+    
+    @staticmethod
+    def verify_credentials(*args, **kwargs):
+        try:
+            body = kwargs['body']
+            data_dict = json.loads(body)
+
+            username = data_dict['username']
+            password = data_dict['password']
+
+            return verifier.check_password(username, password)
+        except Exception as e:
+            print(e)
+        
+        return False, "unverified"
+
+
 
     @staticmethod
     @route("/login")
     def login(*args, **kwargs):
 
-        body = kwargs['body']
-        data_dict = json.loads(body)
-
-        username = data_dict['username']
-        password = data_dict['password']
-
-        is_verified, msg = verifier.check_password(username, password)
+        is_verified, username = Functions.verify_credentials(*args, **kwargs)
 
         if is_verified:
             return {
@@ -110,26 +127,45 @@ class Functions:
     
     # @staticmethod
     # @route("/create_camera_connection")
-    # @role(0)
+    # # @role(0)
     # def create_camera_connection(*args, **kwargs):
     #     try:
-    #         parameters = kwargs['parameters']
 
-    #         location = parameters.get('location', None)
+    #         is_verified, username = Functions.verify_credentials(*args, **kwargs)
 
-    #         t = threading.Thread(target=camera_connections.add_connection)
-    #         t.start()
+    #         if is_verified:
+    #             session_id = verifier.generate_session(username)
+                
+    #             if verifier.check_role(session_id, 0):
 
-    #         return {
-    #             'code' : 200,
-    #             'content_type' : 'application/json',
-    #             'data' : json.dumps({'ip' : IP, 'port' : PORT})
-    #         }
+    #                 return {
+    #                     'code' : 200,
+    #                     'content_type' : 'application/json',
+    #                     'data' : json.dumps({'ip': IP, 'port': PORT, 'session_id': session_id})
+    #                 }
+    #             else:
+    #                 return {
+    #                     'code' : 401,
+    #                     'content_type' : 'application/json',
+    #                     'data' : json.dumps({'message': 'Requires admin privileges'})
+    #                 }
     #     except Exception as e:
     #         print(e)
 
-    #         return {
-    #             'code' : 500,
-    #             'content_type' : 'application/json',
-    #             'data' : json.dumps({'message': 'could not establish connection'}),
-    #         }
+    #     return {
+    #         'code' : 500,
+    #         'content_type' : 'application/json',
+    #         'data' : json.dumps({'message': 'could not establish connection'}),
+    #     }
+    
+    @staticmethod
+    @route("/get_updated_camera_radar")
+    @role(1)
+    def get_updated_camera_radar(*args, **kwargs):
+        cameras = radar.get_available_cameras()
+
+        return {
+            'code' : 200,
+            'content_type' : 'application/json',
+            'data' : json.dumps(cameras)
+        }

@@ -1,6 +1,6 @@
 import bcrypt
 
-from db.users_db_manager import UsersDbManager
+from src.server.db.users_db_manager import UsersDbManager
 from .session_manager import SessionManager
 
 class Verifier:
@@ -33,9 +33,9 @@ class Verifier:
         else:
             return False, "Failed: username doesn't exists"
                     
-        return is_verified, None
+        return is_verified, username
     
-    def check_role(self, session_id, required_role):
+    def check_role(self, session_id, required_role) -> bool:
         username = self.session_manager.find_user(session_id)
 
         record = self.db_manager.get_user_role(username)

@@ -1,11 +1,10 @@
 import socket
 import threading
 
-from request_handler import RequestHandler
-from camera_connections import CameraConnections
+from .request_handler import RequestHandler
 
 class Server:
-    def __init__(self, ip='0.0.0.0', port=80, root='./src/server/files'):
+    def __init__(self, ip=socket.gethostbyname(socket.gethostname()), port=80, root='./src/server/files'):
         self.ip = ip
         self.port = port
         self.root = root
@@ -18,9 +17,6 @@ class Server:
             self.socket.listen(5)
             print(f"Server running on {self.ip}:{self.port}")
 
-            camera_connections = CameraConnections()
-
-            threading.Thread(target=camera_connections.start).start()
             while True:
                 client_socket, _ = self.socket.accept()
                 threading.Thread(target=self.handle_client, args=(client_socket,)).start()
@@ -32,6 +28,7 @@ class Server:
     def handle_client(self, client_socket):
         try:
             request_data = client_socket.recv(1024).decode('utf-8')
+            print(request_data)
             response = RequestHandler(request_data, self.root).handle_request()
             client_socket.sendall(response)
         except Exception as e:

@@ -16,8 +16,10 @@ def send_data(sock: socket.socket, message):
         encoded_data = json_data.encode('utf-8')
         header = struct.pack('!I', len(encoded_data))  # '!I' denotes network byte order unsigned int
         sock.sendall(header + encoded_data)
+        return True
     except Exception as e:
         print(f"Error sending data: {e}")
+        return False
 
 def receive_data(sock: socket.socket):
     """

@@ -1,7 +1,7 @@
 import os
 import base64
 import time
-from db.sessions_db_manager import SessionsDbManager
+from src.server.db.sessions_db_manager import SessionsDbManager
 
 class SessionManager:
     

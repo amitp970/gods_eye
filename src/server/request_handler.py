@@ -1,10 +1,9 @@
 import os
 import mimetypes
 import urllib.parse
-from functions import Functions
+from .functions import Functions, ROUTING_DICT
 
 
-from functions import ROUTING_DICT
 
 EXTENSION_CONTENT_DICT = {'text/html' : 'r', 'image/jpeg' : 'rb',
                           'text/javascript' : 'r', 'text/css' : 'r', 
@@ -34,11 +33,14 @@ class RequestHandler:
         return method, urllib.parse.unquote(path), protocol
     
     def parse_path_parameters(self):
-        path, parameters = self.path.split('?')
+        try: 
+            path, parameters = self.path.split('?')
 
-        parameters = {arg : val for arg, val in [param.split('=') for param in parameters.split('&')]}
+            parameters = {arg : val for arg, val in [param.split('=') for param in parameters.split('&')]}
 
-        return path, parameters
+            return path, parameters
+        except Exception as e:
+            return self.path, {}
     
     def parse_headers_and_body(self):
         parts = self.request_data.split('\r\n\r\n', 1)
