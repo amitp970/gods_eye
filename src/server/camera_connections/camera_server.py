@@ -7,6 +7,7 @@ import base64
 import json
 
 from .protocol import send_data, receive_data
+from src.server.camera_connections.config import settings
 
 def create_udp_socket():
     """Create a UDP socket for broadcasting."""
@@ -32,6 +33,7 @@ class CameraServer:
     def __broadcast_ip(self):
         """Broadcast the IP address and port every 10 seconds when no clients are connected."""
         while True:
+
             if not self.client_connected:
                 message = {
                     'type' : 'cameraConn',
@@ -40,7 +42,7 @@ class CameraServer:
                     'location' : self.location
                 }
                 # message = f"{self.host}:{self.port}"
-                self.udp_socket.sendto(json.dumps(message).encode(), ('<broadcast>', 37020))
+                self.udp_socket.sendto(json.dumps(message).encode(), (settings.HTTP_SERVER_IP, settings.HTTP_SERVER_CAMERA_LISTEN_PORT))
                 print(f"Broadcasting {message} on port 37020")
                 time.sleep(10)
 
