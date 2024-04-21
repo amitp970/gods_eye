@@ -8,12 +8,13 @@ import os
 
 from .protocol import receive_data, send_data
 
-class VideoClient:
+class CameraClient:
     def __init__(self, host, port, camera_location):
         self.host = host
         self.port = port
         self.sock = None
         self.camera_location = camera_location
+        self.is_running = False
 
     def connect_to_server(self):
         """Create a TCP/IP socket and connect to the server."""
@@ -45,7 +46,7 @@ class VideoClient:
     def receive_frames(self):
         """Receive frames from the server and write them to the file system using OpenCV."""
         try:
-            while True:
+            while self.is_running:
                 # Receive data from the server
                 frame_info = receive_data(self.sock)
                 if not frame_info:
@@ -69,11 +70,18 @@ class VideoClient:
         """Close the socket and disconnect from the server."""
         self.sock.close()
         print("Disconnected from server.")
+    
+    def stop(self):
+        self.is_running = False
+        
+    def start(self):
+        self.connect_to_server()
+        self.receive_frames()
 
 def main():
     server_host = '192.168.68.123'  # Change to your server's IP address
     server_port = 12345        # Change to your server's port
-    client = VideoClient(server_host, server_port, "tel aviv")
+    client = CameraClient(server_host, server_port, "tel aviv")
     client.connect_to_server()
     client.receive_frames()
 

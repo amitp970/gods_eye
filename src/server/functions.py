@@ -6,7 +6,7 @@ import os
 import threading
 
 from .camera_connections.camera_radar import CameraRadar
-
+from .camera_connections.camera_client import CameraClient
 
 ROUTING_DICT = {}
 
@@ -15,6 +15,7 @@ verifier = Verifier()
 radar = CameraRadar()
 radar.start()
 
+camera_clients = {}
 
 
 class Functions:
@@ -125,39 +126,67 @@ class Functions:
                 'data' : json.dumps({'message': f'{msg}'}),
             }
     
-    # @staticmethod
-    # @route("/create_camera_connection")
-    # # @role(0)
-    # def create_camera_connection(*args, **kwargs):
-    #     try:
+    @staticmethod
+    @route("/connect_camera")
+    @role(0)
+    def create_camera_connection(*args, **kwargs):
+        try:
+            body = kwargs['body']
+            data_dict = json.loads(body)
 
-    #         is_verified, username = Functions.verify_credentials(*args, **kwargs)
+            camera_ip = data_dict['IP']
 
-    #         if is_verified:
-    #             session_id = verifier.generate_session(username)
-                
-    #             if verifier.check_role(session_id, 0):
+            if camera_ip in (camera_details := radar.get_available_cameras()):
+                camera_details = camera_details[camera_ip]
+                camera_client = CameraClient(camera_ip, camera_details['port'], camera_details['location'])
+                threading.Thread(target=camera_client.start).start()
+                camera_clients[camera_ip] = camera_client   
 
-    #                 return {
-    #                     'code' : 200,
-    #                     'content_type' : 'application/json',
-    #                     'data' : json.dumps({'ip': IP, 'port': PORT, 'session_id': session_id})
-    #                 }
-    #             else:
-    #                 return {
-    #                     'code' : 401,
-    #                     'content_type' : 'application/json',
-    #                     'data' : json.dumps({'message': 'Requires admin privileges'})
-    #                 }
-    #     except Exception as e:
-    #         print(e)
+                return {
+                    'code': 200,
+                    'content_type': 'application/json',
+                    'data': json.dumps({'message': f'Connected to {camera_ip}'})
+                }             
 
-    #     return {
-    #         'code' : 500,
-    #         'content_type' : 'application/json',
-    #         'data' : json.dumps({'message': 'could not establish connection'}),
-    #     }
+        except Exception as e:
+            print(e)
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'could not establish connection', 'error' : str(e)}),
+            }
+
+        return {
+            'code' : 500,
+            'content_type' : 'application/json',
+            'data' : json.dumps({'message': 'could not establish connection'}),
+        }
     
+    @staticmethod
+    @route("/disconnect_camera")
+    @role(0)
+    def create_camera_connection(*args, **kwargs):
+        try:
+            body = kwargs['body']
+            data_dict = json.loads(body)
+
+            camera_ip = data_dict['ip']
+
+            if camera_ip in camera_clients:
+                camera_client = camera_clients[camera_ip]
+                camera_client.stop()
+                del camera_clients[camera_ip]             
+
+        except Exception as e:
+            print(e)
+
+        return {
+            'code' : 500,
+            'content_type' : 'application/json',
+            'data' : json.dumps({'message': 'could not destroy connection'}),
+        }
+
+
     @staticmethod
     @route("/get_updated_camera_radar")
     @role(1)
