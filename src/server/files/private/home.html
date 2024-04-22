@@ -15,8 +15,8 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3">
-        <div class="container">
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 px-5">
+        <div class="container-fluid">
             <a href="./home.html" class="navbar-brand">God's Eye</a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
@@ -40,7 +40,7 @@
     </nav>
 
     <section class="bg-dark text-light p-5 text-center mh-50 text-sm-start">
-        <div class="container">
+        <div class="container-fluid">
             <div class="d-sm-flex align-items-center justify-content-between">
                 <div class="col">
                     <h1><span class="text-success">Rapid identification. </span> <br> <span class="text-warning"> Fast action. </span><br> <span class="text-success"> A safer world. </span></h1>
@@ -57,9 +57,9 @@
         </div>
     </section>
 
-    <section>
-        <div class="container mt-5">
-            <h1 class="mb-3">Camera Radar Updates</h1>
+    <section class="p-5 text-center text-sm-start">
+        <div class="container-fluid m-2 p-3 shadow"">
+            <h1 class="mb-3">Camera Radar</h1>
             <table id="cameraRadarTable" class="table table-striped" style="width:100%">
                 <thead>
                     <tr>
@@ -67,6 +67,25 @@
                         <th>Port</th>
                         <th>Location</th>
                         <th>Last Seen</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="text-center px-5 text-sm-start">
+        <div class="container-fluid m-2 p-3 shadow"">
+            <h1 class="mb-3">Connected Cameras</h1>
+            <table id="connectedCamerasTable" class="table table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>IP</th>
+                        <th>Port</th>
+                        <th>Location</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

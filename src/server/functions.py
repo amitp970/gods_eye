@@ -4,6 +4,7 @@ import re
 import socket
 import os
 import threading
+import traceback
 
 from .camera_connections.camera_radar import CameraRadar
 from .camera_connections.camera_client import CameraClient
@@ -34,14 +35,25 @@ class Functions:
 
                     if verifier.check_role(session_id, required_role) and verifier.check_session(session_id):
                         return func(*args, **kwargs)
+                    
+                    elif required_role == 0 and verifier.check_role(session_id, 1):
+                        return {
+                            'code' : 401,
+                            'content_type' : 'application/json',
+                            'data' : json.dumps({'message': 'Unauthorized to access resource'}),
+                        }
                 except Exception as e:
                     print(e)
 
-                return (lambda: {
-                    'code' : 401,
+
+                return {
+                    'code' : 302,
                     'content_type' : 'application/json',
                     'data' : json.dumps({'message': 'Unauthorized to access resource'}),
-                })()
+                    'additional_headers': {
+                        'Location': '/index.html'
+                    }
+                }
                 
             return check_cookie
         return decorator
@@ -165,20 +177,20 @@ class Functions:
     @staticmethod
     @route("/disconnect_camera")
     @role(0)
-    def create_camera_connection(*args, **kwargs):
+    def disconnect_camera(*args, **kwargs):
         try:
             body = kwargs['body']
             data_dict = json.loads(body)
 
-            camera_ip = data_dict['ip']
+            camera_ip = data_dict['IP']
 
             if camera_ip in camera_clients:
-                camera_client = camera_clients[camera_ip]
-                camera_client.stop()
+                camera_clients[camera_ip].stop()
                 del camera_clients[camera_ip]             
 
         except Exception as e:
             print(e)
+            traceback.print_exc()
 
         return {
             'code' : 500,
@@ -192,6 +204,38 @@ class Functions:
     @role(1)
     def get_updated_camera_radar(*args, **kwargs):
         cameras = radar.get_available_cameras()
+
+        return {
+            'code' : 200,
+            'content_type' : 'application/json',
+            'data' : json.dumps(cameras)
+        }
+    
+    @staticmethod
+    @route("/get_connected_cameras")
+    @role(1)
+    def get_connected_cameras(*args, **kwargs):
+
+        cameras = {}
+
+        try:
+
+            for camera_ip in camera_clients:
+                camera = camera_clients[camera_ip]
+                cameras[camera_ip] = {
+                    'host': camera.host,
+                    'port': camera.port,
+                    'location': camera.camera_location
+                }
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'could not fetch connected cameras'}),
+            }
 
         return {
             'code' : 200,
