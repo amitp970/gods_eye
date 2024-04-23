@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 import os
 
-from .protocol import receive_data, send_data
+from src.core.protocol import receive_data, send_data
 
 class CameraClient:
     def __init__(self, host, port, camera_location):
@@ -58,12 +58,12 @@ class CameraClient:
                 # NOTE: write the frame to the correct folder data/cameras/{location}/{uuid4()}.jpg()
                 self.write_file(frame)
 
-                # Display the frame
-                cv2.imshow('Live Video', frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # # Display the frame
+                # cv2.imshow('Live Video', frame)
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                #     break
         finally:
-            cv2.destroyAllWindows()
+            # cv2.destroyAllWindows()
             self.disconnect_from_server()
 
     def disconnect_from_server(self):
@@ -76,14 +76,14 @@ class CameraClient:
         
     def start(self):
         self.connect_to_server()
+        self.is_running=True
         self.receive_frames()
 
 def main():
     server_host = '192.168.68.123'  # Change to your server's IP address
     server_port = 12345        # Change to your server's port
     client = CameraClient(server_host, server_port, "tel aviv")
-    client.connect_to_server()
-    client.receive_frames()
+    client.start()
 
 if __name__ == "__main__":
     main()

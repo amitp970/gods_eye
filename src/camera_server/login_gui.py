@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import json
-from .camera_server import CameraServer
+from src.camera_server import CameraServer
 import socket  
 
 

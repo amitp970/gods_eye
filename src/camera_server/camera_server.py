@@ -6,8 +6,8 @@ import numpy as np
 import base64
 import json
 
-from .protocol import send_data, receive_data
-from src.server.camera_connections.config import settings
+from src.core.protocol import send_data, receive_data
+from .config import settings
 
 def create_udp_socket():
     """Create a UDP socket for broadcasting."""
