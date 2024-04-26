@@ -1,7 +1,9 @@
 import socket
 import threading
+import traceback
 
 from .request_handler import RequestHandler
+from .functions import services
 
 class Server:
     def __init__(self, ip=socket.gethostbyname(socket.gethostname()), port=80, root='./src/server/files'):
@@ -22,7 +24,13 @@ class Server:
                 threading.Thread(target=self.handle_client, args=(client_socket,)).start()
         except KeyboardInterrupt:
             print("Server shutting down...")
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
         finally:
+            for service in services:
+                service.stop()
+
             self.socket.close()
     
     def handle_client(self, client_socket):

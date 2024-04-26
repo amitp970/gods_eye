@@ -38,6 +38,8 @@ class CameraRadar:
                             camera_info['last_seen'] = time.time()
                             self.available_cameras[ip] = camera_info
                             print(f"Discovered camera: {camera_info}")
+                except KeyboardInterrupt as e:
+                    self.running = False
                 except socket.error as e:
                     print(f"Socket error: {e}")
                 except Exception as e:

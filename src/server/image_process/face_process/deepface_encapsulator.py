@@ -11,6 +11,8 @@ from deepface.models.FacialRecognition import FacialRecognition
 from deepface import DeepFace
 
 class FeatureExtractor:
+    FACENET_THRESHOLD_EUCLIDEAN = 15
+
     def __init__(self, model_name = "Facenet") -> None:
         self.model: FacialRecognition  = DeepFace.build_model(model_name)
     
@@ -118,8 +120,8 @@ class FeatureExtractor:
     def get_embedding(self, image):
         return self.represent(image)[0]['embedding']
     
-    @classmethod
-    def find_threshold(cls, model_name: str = 'Facenet', distance_metric: str = 'euclidean') -> float:
+    @staticmethod
+    def find_threshold(model_name: str = 'Facenet', distance_metric: str = 'euclidean') -> float:
         """
         Retrieve pre-tuned threshold values for a model and distance metric pair
         Args:

@@ -8,16 +8,22 @@ import traceback
 
 from .camera_connections.camera_radar import CameraRadar
 from .camera_connections.camera_client import CameraClient
+from .image_process.process_images import ImageProcessor
 
 ROUTING_DICT = {}
+services = []
 
 verifier = Verifier()
 
 radar = CameraRadar()
 radar.start()
+services.append(radar)
 
 camera_clients = {}
 
+image_processor = ImageProcessor()
+image_processor.start()
+services.append(image_processor)
 
 class Functions:
 

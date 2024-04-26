@@ -5,7 +5,7 @@ from typing import List
 from pymongo import MongoClient
 import faiss
 from deepface_encapsulator import FeatureExtractor
-from data_manager import DataManager
+from src.server.image_process.face_process.data_manager_async import DataManager
 import numpy as np 
 import cv2
 

@@ -9,5 +9,6 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     FAISS_PATH: str
     ROOT_PATH_IMAGES: str
+    MONGODB_URL: str
 
 settings = Settings()

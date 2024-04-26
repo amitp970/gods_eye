@@ -1,30 +1,50 @@
 from datetime import datetime
-from datetime import datetime
-import asyncio
-
+from uuid import uuid4
 
 class Person:
-    def __init__(self, ids, locations):
-        self.ids = ids
-        self.locations_time = [(loc, datetime.now()) for loc in locations]
-
-    async def save(self, db):
-        # This method inserts the object into the MongoDB collection.
-        await db.persons.insert_one(self.to_dict())
+    def __init__(self):
+        self.id = str(uuid4())
+        # self.embedding = None
+        self.embeddings_ids = []
+        self.locations_time = []
 
     def to_dict(self):
         # Convert the object to a dictionary, suitable for MongoDB.
         return {
-            "ids": self.ids,
+            "id": self.id,
+            # "embedding": self.embedding,
+            "embeddings_ids": self.embeddings_ids,
             "locations" : self.locations_time
         }
+    
+    def save(self, db):
+        # This method inserts the object into the MongoDB collection.
+        return db.persons.insert_one(self.to_dict())
+
 
     @classmethod
-    async def add_sighting(cls, db, existing_id, new_id, location):
-        # This class method appends a new id and location to the person.
-        response = await db.persons.update_one(
-            {"ids": existing_id},
-            {"$push": {"ids" : new_id, "locations" : (location, datetime.now())}}
+    def create_person(cls, db, embedding, embedding_id, location, time=datetime.now()):
+        # This class method creates a person and inserts it's embedding and location_time to the db.
+        p = Person()
+
+        p.embeddings_ids.append(int(embedding_id))
+        p.locations_time.append((location, time))
+
+        response = p.save(db)
+
+        print(response)
+        print('Added Person')
+
+        return response
+
+    @classmethod
+    def add_sighting(cls, db, embedding_id, new_embedding_id, location, time=datetime.now()):
+        # This class method appends a embedding and location to the person.
+        response = db['persons'].update_one(
+            {"embeddings_ids": int(embedding_id)},
+            {"$push": {"locations" : (location, time), "embeddings_ids" : int(new_embedding_id)}}
         )
         print(response)
         print('Added sighting')
+
+        return response
