@@ -136,19 +136,6 @@ class ImageProcessor:
             cropped_face = image[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
             self.faces_queue.put((location, image_datetime, cropped_face))
 
-    def process_faces(self):
-        while self.is_running:
-            try:
-                location, image_datetime, face_frame = self.faces_queue.get(timeout=5)
-                embedding = self.feature_extractor.get_embedding(face_frame)
-                try:
-                    self.data_manager.insert(embedding=embedding, location=location, time=image_datetime)
-                except Exception as e:
-                    print(e)
-                    traceback.print_exc
-            except Empty:
-                pass
-
     def process_images(self):
         while self.is_running:
             try:
@@ -164,7 +151,47 @@ class ImageProcessor:
                 print(e)
                 traceback.print_exc()
 
-                
+    def process_faces(self):
+        while self.is_running:
+            try:
+                print(f'faces-q: {self.faces_queue}')
+                location, image_datetime, face_frame = self.faces_queue.get(timeout=5)
+                print(location)
+                lat, lng = location.split('_')
+                location = {'lat': lat, 'lng': lng}
+                print(location)
+
+                embedding = self.feature_extractor.get_embedding(face_frame)
+                try:
+                    self.data_manager.insert(embedding=embedding, location=location, time=image_datetime)
+                except Exception as e:
+                    print(e)
+                    traceback.print_exc
+            except Empty as e:
+                print(e)
+
+
+    def match_suspect_to_person(self, suspect_name, images):
+
+        for image in images:
+            results = self.face_model.predict(image)
+            pred_data = self.get_prediction_data(results[0].boxes)
+
+            for top_left, bottom_right, _ in pred_data:
+                cropped_face = image[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
+                embedding = self.feature_extractor.get_embedding(cropped_face)
+
+                distances, ids = self.data_manager.index.search(np.expand_dims(embedding, axis=0), 1)
+
+                if distances.size > 0 and distances[0][0] <= FeatureExtractor.FACENET_THRESHOLD_EUCLIDEAN:
+                    person = self.data_manager.search_person_by_id(ids[0][0])
+
+                    if person:
+                        self.data_manager.insert_name(_id=person['_id'], name=suspect_name)
+
+                        return person
+        return None
+
     def start(self):
         self.images_finder_thread.start()
         self.process_images_thread.start()
@@ -172,4 +199,4 @@ class ImageProcessor:
     
     def stop(self):
         self.is_running = False
-        self.data_manager.save_faiss()
+        self.data_manager.index.save_faiss()

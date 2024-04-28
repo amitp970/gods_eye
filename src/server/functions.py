@@ -1,11 +1,12 @@
 import json
-from .auth.verifier import Verifier
-import re
-import socket
-import os
 import threading
 import traceback
+import base64
+import numpy as np
+import cv2
+from bson import json_util
 
+from .auth.verifier import Verifier
 from .camera_connections.camera_radar import CameraRadar
 from .camera_connections.camera_client import CameraClient
 from .image_process.process_images import ImageProcessor
@@ -248,3 +249,48 @@ class Functions:
             'content_type' : 'application/json',
             'data' : json.dumps(cameras)
         }
+    
+
+    @staticmethod
+    @route("/searchSuspect")
+    @role(1)
+    def upload_suspect_image(*args, **kwargs):
+        try:
+            body = kwargs['body']
+            data_dict = json.loads(body)
+
+            suspect_name = data_dict['fullName']
+
+            images = data_dict['images']
+
+            for idx, image in enumerate(images):
+                image_data = base64.b64decode(image.split(',')[1])  # Remove the base64 prefix and decode
+                image = np.frombuffer(image_data, dtype=np.uint8)  # Convert to a matrix-like object
+                frame = cv2.imdecode(image, cv2.IMREAD_COLOR)
+                
+                images[idx] = frame
+
+            person = image_processor.match_suspect_to_person(suspect_name, images)
+
+            if person:
+                data = json_util.dumps(person)
+                
+            else:
+                data = json.dumps({'message' : 'Suspect not found!'})
+
+            return {
+                'code': 200,
+                'content_type': 'application/json',
+                'data': data
+            }
+            
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'Failed while searching suspect'}),
+            }
+    

@@ -32,15 +32,51 @@ class Server:
                 service.stop()
 
             self.socket.close()
+
+    def extract_content_length(self, http_request):
+        """Extract the Content-Length from a raw HTTP request string."""
+        # Split the request into lines
+        lines = http_request.split('\n')
+        # Iterate through each line
+        for line in lines:
+            # Check if the line contains the Content-Length header
+            if "Content-Length:" in line:
+                # Extract the value after the colon and strip any extraneous spaces
+                content_length = line.split(":")[1].strip()
+                return content_length
+        return None
     
     def handle_client(self, client_socket):
         try:
-            request_data = client_socket.recv(1024).decode('utf-8')
+            bytes_read = 0
+            header = 1024
+
+            data_bytes = client_socket.recv(header)
+            
+            request_data = data_bytes.decode('utf-8')
+
             print(request_data)
+            try:
+                content_length = self.extract_content_length(request_data)
+                print(content_length)
+
+                if content_length and len(data_bytes) == header:
+                    content_length = int(content_length)
+                    while bytes_read < content_length:
+                        request_data += client_socket.recv(header).decode('utf-8')
+                        bytes_read += header
+                    
+            except Exception as e:
+                print(e)
+                traceback.print_exc()
+            
             response = RequestHandler(request_data, self.root).handle_request()
+
             client_socket.sendall(response)
+
         except Exception as e:
             print(f"Error handling request: {e}")
+            traceback.print_exc()
         finally:
             client_socket.close()
 

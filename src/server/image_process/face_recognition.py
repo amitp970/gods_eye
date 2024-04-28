@@ -1,9 +1,11 @@
 from ultralytics import YOLO
+import threading
 # import torch
 
 class FaceRecognition:
     def __init__(self):
         self.model = self.load_yolo_model()
+        self.lock = threading.Lock()
 
     def load_yolo_model(self):
         """Loads the YOLO model for object detection from a predefined path."""
@@ -12,5 +14,6 @@ class FaceRecognition:
         return model
     
     def predict(self, frame):
-        return self.model(frame)
+        with self.lock:
+            return self.model(frame)
 

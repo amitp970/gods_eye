@@ -99,5 +99,5 @@ class CameraServer:
 
 # Uncomment to run:
 if __name__=='__main__':
-    camera_server = CameraServer()
+    camera_server = CameraServer(location={'lat': 32.1241975, 'lng' : 34.825830})
     camera_server.start_server()

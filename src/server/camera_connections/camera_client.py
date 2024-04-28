@@ -36,7 +36,16 @@ class CameraClient:
         Args:
             frame: The video frame from which objects are detected.
         """
-        imgs_path = f'./data/cameras/{self.camera_location}/'
+        try:
+            lat = self.camera_location['lat']
+            lng = self.camera_location['lng']
+        except Exception as e:
+            print(e)
+            lat = 0
+            lng = 0
+        
+        imgs_path = f'./data/cameras/{lat}_{lng}/'
+
         os.makedirs(imgs_path, exist_ok=True)
 
         file_path = f"{imgs_path}/{uuid.uuid4()}-{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
