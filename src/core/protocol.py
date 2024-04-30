@@ -47,7 +47,6 @@ def receive_data(sock: socket.socket):
             received_data += part
 
         resp = json.loads(received_data.decode('utf-8'))
-        # print(resp)
         return resp
     except json.JSONDecodeError:
         print("Error decoding JSON data.")

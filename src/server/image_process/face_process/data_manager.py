@@ -116,14 +116,13 @@ class DataManager:
         """
 
         distances, ids = self.index.search(np.expand_dims(embedding, axis=0), 1)
-        print(f'distances: {distances}, ids: {ids}' )
 
         new_embedding_ids = DataManager.generate_ids(1)
 
         new_embedding_id = new_embedding_ids[0]
         
         if distances.size > 0 and distances[0][0] <= FeatureExtractor.FACENET_THRESHOLD_EUCLIDEAN:
-            # print(f"response: {response}")
+
             db_resp = self.insert_new_sighting(embedding_id=ids[0][0], new_embedding_id=new_embedding_id, location=location, time=time)
             print('added sighting of an existing person')
         else:

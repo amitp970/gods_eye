@@ -110,8 +110,6 @@ async def main():
     index_path = "./data/faiss/faces_index.index"
     db_path = r"mongodb://localhost:27017/"
 
-    print(os.getcwd())
-
     try:
         face_processor = FaceProcessor(folder_path, index_path, db_path)
         await face_processor.monitor_folder()

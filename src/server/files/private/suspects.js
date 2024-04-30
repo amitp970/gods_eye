@@ -1,40 +1,76 @@
-// function postFormData(formId, serverEndpointURL) {
-//     return function(event) {
-//         event.preventDefault(); // Prevent the default form submission
 
-//         const uploadForm = document.getElementById(formId);
-//         const formData = new FormData(uploadForm); // Gather form data
 
-//         fetch(serverEndpointURL, { // URL to server endpoint
-//             method: 'POST',
-//             body: formData
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             console.log('Success:', data); // Handle success here
-//         })
-//         .catch((error) => {
-//             console.error('Error:', error); // Handle errors here
-//         });
-//     };
-//   }
+// Initialize DataTable just once when the document is ready
+$(document).ready(function() {
 
-// document.addEventListener("DOMContentLoaded", function() {
-//     const formId = 'searchSuspectForm'; // Assuming 'uploadForm' is the ID of your form
-//     const serverEndpointURL = '/searchSuspect'; // Replace with your actual endpoint
+    // Listen for form submissions to update the DataTable
+    document.getElementById('blacklistForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Your existing form submission handling logic here...
+        const fullName = document.getElementById('fullName2').value;
+    const fileInput = document.getElementById('suspectImages2');
+    const files = fileInput.files;
 
-//     const formElement = document.getElementById(formId);
-//     formElement.addEventListener('submit', postFormData(formId, serverEndpointURL));
-// });
+    if (files.length > 0) {
+        let imagesAsBase64 = [];
+        let filesProcessed = 0;
 
-// document.addEventListener("DOMContentLoaded", function() {
-//     const formId = 'blacklistForm'; // Assuming 'uploadForm' is the ID of your form
-//     const serverEndpointURL = '/addSuspectToBlacklist'; // Replace with your actual endpoint
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagesAsBase64.push(e.target.result); // Add base64 encoding of the image to array
+                    filesProcessed++;
 
-//     const formElement = document.getElementById(formId);
-//     formElement.addEventListener('submit', postFormData(formId, serverEndpointURL));
-// });
+                    // Check if all files have been processed
+                    if (filesProcessed === files.length) {
+                        const jsonData = {
+                            fullName: fullName,
+                            images: imagesAsBase64
+                        };
 
+                        // Send JSON data via fetch
+                        fetch('/addSuspectToBlacklist', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(jsonData)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Success:', data);
+
+                            firstFile = files[0]
+
+                            // photo = firstFile ? URL.createObjectURL(firstFile) : null 
+
+                            // Update the blacklist table
+                            if (data.success) {
+                                // Assume data object contains necessary suspect details
+                                $('#blacklistTable').DataTable().row.add({
+                                    "photo": data.profilePhotoUrl,
+                                    "Name": fullName,
+                                    "Embeddings Count": data.embeddingsCount,
+                                    "remove": data.id                    
+                                }).draw(false);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                };
+                reader.readAsDataURL(file); // Converts the image to base64
+            } else {
+                console.error('All files must be JPEG images.');
+            }
+        });
+    } else {
+        console.error('Please upload at least one JPEG image.');
+    }
+
+
+    });
+});
 
 
 document.getElementById('searchSuspectForm').addEventListener('submit', function(event) {
@@ -49,7 +85,7 @@ document.getElementById('searchSuspectForm').addEventListener('submit', function
         let filesProcessed = 0;
 
         Array.from(files).forEach(file => {
-            if (file.type === "image/jpeg") {
+            if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imagesAsBase64.push(e.target.result); // Add base64 encoding of the image to array
@@ -94,56 +130,3 @@ document.getElementById('searchSuspectForm').addEventListener('submit', function
         console.error('Please upload at least one JPEG image.');
     }
 });
-
-
-
-
-
-document.getElementById('blacklistForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const fullName = document.getElementById('fullName2').value;
-    const fileInput = document.getElementById('suspectImages2');
-    const files = fileInput.files;
-
-    if (files.length > 0) {
-        let imagesAsBase64 = [];
-        let filesProcessed = 0;
-
-        Array.from(files).forEach(file => {
-            if (file.type === "image/jpeg") {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagesAsBase64.push(e.target.result); // Add base64 encoding of the image to array
-                    filesProcessed++;
-
-                    // Check if all files have been processed
-                    if (filesProcessed === files.length) {
-                        const jsonData = {
-                            fullName: fullName,
-                            images: imagesAsBase64
-                        };
-
-                        // Send JSON data via fetch
-                        fetch('/searchSuspect', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(jsonData)
-                        })
-                        .then(response => response.json())
-                        .then(data => console.log('Success:', data))
-                        .catch(error => console.error('Error:', error));
-                    }
-                };
-                reader.readAsDataURL(file); // Converts the image to base64
-            } else {
-                console.error('All files must be JPEG images.');
-            }
-        });
-    } else {
-        console.error('Please upload at least one JPEG image.');
-    }
-});
-

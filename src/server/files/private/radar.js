@@ -47,7 +47,7 @@ $(document).ready(function() {
                 });
             }
         }
-        table.draw()
+        table.draw();
     }
 
     // Event delegation to handle clicks on dynamically created buttons

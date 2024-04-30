@@ -13,5 +13,3 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
 settings = Settings()
-
-print(settings.model_dump_json())

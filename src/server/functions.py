@@ -5,11 +5,16 @@ import base64
 import numpy as np
 import cv2
 from bson import json_util
+import uuid
+import os
 
 from .auth.verifier import Verifier
 from .camera_connections.camera_radar import CameraRadar
 from .camera_connections.camera_client import CameraClient
 from .image_process.process_images import ImageProcessor
+
+
+PRIVATE_FILES_PATH = "src/server/files/private"
 
 ROUTING_DICT = {}
 services = []
@@ -25,6 +30,16 @@ camera_clients = {}
 image_processor = ImageProcessor()
 image_processor.start()
 services.append(image_processor)
+
+
+os.makedirs(f'{PRIVATE_FILES_PATH}/blacklist/profile_photos/', exist_ok=True)
+blacklist = {}
+
+BLACKLIST_PATH = f'{PRIVATE_FILES_PATH}/blacklist/blacklist.json'
+if not blacklist:
+    if os.path.isfile(BLACKLIST_PATH):
+        with open(BLACKLIST_PATH, 'r') as f:
+            blacklist = json.load(f)
 
 class Functions:
 
@@ -250,25 +265,32 @@ class Functions:
             'data' : json.dumps(cameras)
         }
     
+    @staticmethod
+    def parseSuspectFormData(*args, **kwargs):
+        
+        body = kwargs['body']
+        data_dict = json.loads(body)
+
+        suspect_name = data_dict['fullName']
+
+        images = data_dict['images']
+
+        for idx, image in enumerate(images):
+            image_data = base64.b64decode(image.split(',')[1])  # Remove the base64 prefix and decode
+            image = np.frombuffer(image_data, dtype=np.uint8)  # Convert to a matrix-like object
+            frame = cv2.imdecode(image, cv2.IMREAD_COLOR)
+            
+            images[idx] = frame
+
+        return suspect_name, images
+
 
     @staticmethod
     @route("/searchSuspect")
     @role(1)
-    def upload_suspect_image(*args, **kwargs):
+    def searchSuspect(*args, **kwargs):
         try:
-            body = kwargs['body']
-            data_dict = json.loads(body)
-
-            suspect_name = data_dict['fullName']
-
-            images = data_dict['images']
-
-            for idx, image in enumerate(images):
-                image_data = base64.b64decode(image.split(',')[1])  # Remove the base64 prefix and decode
-                image = np.frombuffer(image_data, dtype=np.uint8)  # Convert to a matrix-like object
-                frame = cv2.imdecode(image, cv2.IMREAD_COLOR)
-                
-                images[idx] = frame
+            suspect_name, images = Functions.parseSuspectFormData(*args, **kwargs)
 
             person = image_processor.match_suspect_to_person(suspect_name, images)
 
@@ -293,4 +315,172 @@ class Functions:
                 'content_type' : 'application/json',
                 'data' : json.dumps({'message': 'Failed while searching suspect'}),
             }
-    
+        
+
+
+    @staticmethod
+    @route('/addSuspectToBlacklist')
+    @role(1)
+    def addSuspectToBlacklist(*args, **kwargs):
+        try:
+            suspect_name, images = Functions.parseSuspectFormData(*args, **kwargs)
+            
+            embeddings = list(image_processor.get_embeddings(images))
+
+            _id = str(uuid.uuid4())
+            
+            global blacklist
+            
+            blacklist[_id] = {
+                'suspectName': suspect_name,
+                'embeddings': embeddings,
+                'profilePhotoUrl': f'/blacklist/profile_photos/{suspect_name.replace(' ', '')}-{_id}.jpg'
+            }
+
+            cv2.imwrite(PRIVATE_FILES_PATH + blacklist[_id]['profilePhotoUrl'], image_processor.get_face_from_image(images[0]))
+
+            with open(BLACKLIST_PATH, 'w') as f:
+                json.dump(blacklist, f)
+
+            return {
+                'code': 200,
+                'content_type' : 'application/json',
+                'data': json.dumps({'id': _id, 'name': suspect_name,
+                                    'embeddingsCount': len(blacklist[_id]['embeddings']),
+                                    'profilePhotoUrl': blacklist[_id]['profilePhotoUrl'],
+                                    'success': True})
+            }
+
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'Failed while adding suspect to blacklist'}),
+            }
+        
+
+    @staticmethod
+    @route('/checkBlacklist')
+    @role(1)
+    def checkBlackList(*args, **kwargs):
+        try:
+            criminalsFound = []
+            
+            for _id in blacklist:
+                suspect = blacklist[_id]
+
+                for embedding in suspect['embeddings']:
+                    if person := image_processor.match_embedding_to_person(embedding=embedding, suspect_name=suspect['suspectName']):
+                        criminalsFound.append(person)
+            
+            return {
+                'code' : 200,
+                'content_type': 'application/json',
+                'data': json_util.dumps(person)
+            }
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'Failed while searching blacklist'}),
+            }
+        
+    @staticmethod
+    def image_to_base64(image_path):
+        # Load the image
+        image = cv2.imread(image_path)
+        if image is None:
+            print("Failed to load image. Please check the path and file format.")
+            return None
+        
+        # Convert the image to a format suitable for encoding
+        _, buffer = cv2.imencode('.jpg', image)
+        
+        # Convert the buffer to a byte string
+        jpg_as_text = base64.b64encode(buffer)
+        
+        # Convert byte string to a standard string
+        jpg_as_text = jpg_as_text.decode('utf-8')
+        
+        return jpg_as_text
+
+
+    @staticmethod
+    @route('/getBlacklist')
+    @role(1)
+    def getBlacklist(*args, **kwargs):
+        try:
+            global blacklist
+               
+            data = [{'suspectId': _id, 'fullName': blacklist[_id]['suspectName'], 'embeddingsCount': len(blacklist[_id]['embeddings']), 'profilePhotoUrl': blacklist[_id]['profilePhotoUrl']} for _id in blacklist]
+
+            return {
+                'code' : 200,
+                'content_type': 'application/json',
+                'data': json.dumps(data)
+            }
+
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'Failed while retrieving blacklist'}),
+            }
+        
+    @staticmethod
+    @route('/removeBlacklistSuspect')
+    @role(1)
+    def removeBlacklistSuspect(*args, **kwargs):
+        try:
+            body = kwargs['body']
+            data_dict = json.loads(body)
+
+            suspectId = data_dict['id']
+
+            global blacklist
+
+            if suspectId:
+                os.remove(PRIVATE_FILES_PATH + blacklist[suspectId]['profilePhotoUrl'])
+
+                del blacklist[suspectId]
+
+                with open(BLACKLIST_PATH, 'w') as f:
+                    json.dump(blacklist, f)
+            
+                return {
+                    'code' : 200,
+                    'content_type': 'application/json',
+                    'data': json.dumps({
+                        'message': 'Deleted suspect from blacklist',
+                        'success' : True
+                    })
+                }
+
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'Failed while deleting suspect from blacklist',
+                                     'success' : False}),
+            }
+        
+        return {
+            'code' : 500,
+            'content_type' : 'application/json',
+            'data' : json.dumps({
+                'message': 'Could not delete suspect from blacklist',
+                'success' : False
+                }),
+        }

@@ -58,13 +58,18 @@ class Server:
             print(request_data)
             try:
                 content_length = self.extract_content_length(request_data)
-                print(content_length)
 
                 if content_length and len(data_bytes) == header:
                     content_length = int(content_length)
-                    while bytes_read < content_length:
-                        request_data += client_socket.recv(header).decode('utf-8')
-                        bytes_read += header
+
+                    try:
+                        client_socket.settimeout(0.1)
+                        while True:
+                            request_data += client_socket.recv(header).decode('utf-8')
+                    except socket.timeout as e:
+                        print(e)
+                
+                print("finished reading")
                     
             except Exception as e:
                 print(e)

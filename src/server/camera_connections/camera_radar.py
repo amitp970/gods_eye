@@ -64,19 +64,6 @@ class CameraRadar:
             for ip, details in self.available_cameras.items():
                 print(f"{ip}: {details}")
 
-    # def select_and_connect_camera(self):
-    #     """Allow user to select a camera and connect to it."""
-    #     self.display_available_cameras()
-    #     camera_ip = input("Enter the IP of the camera to connect: ")
-    #     if camera_ip in self.cameras:
-    #         details = self.cameras[camera_ip]
-    #         port = details['port']  # Assuming the port is part of the details
-    #         client = VideoClient(camera_ip, port, None)
-    #         client.connect_to_server()
-    #         self.video_clients[camera_ip] = client
-    #         print(f"Connected to camera at {camera_ip}")
-    #     else:
-    #         print("Camera not found.")
 
     def start(self):
         """Start listening for cameras."""
