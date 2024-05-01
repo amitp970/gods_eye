@@ -34,10 +34,9 @@ $(document).ready(function() {
     function displayPersonsOnMap(persons) {
         // Initialize the map on a specified div element
         try {
-            if (blacklistMap) {
-                blacklistMap.remove(); // Destroys the map object
+            if (!blacklistMap) {
+                blacklistMap = L.map('blacklistMap').setView([0, 0], 1);
             }
-            blacklistMap = L.map('blacklistMap').setView([0, 0], 1);
             
         } catch (error) {
             console.error("Failed to initialize the map:", error);
@@ -55,8 +54,11 @@ $(document).ready(function() {
 
         // Loop through each person and their locations
 
+        let names = []
+
         persons.forEach(person => {
             console.log(person)
+            names.push(person.name)
             
             var personIcon = new L.Icon({
                 iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${colors[colorIndex % colors.length]}.png`,
@@ -78,9 +80,13 @@ $(document).ready(function() {
                 var marker = L.marker([lat, lng], {icon: personIcon}).addTo(blacklistMap);
    
                 // Optionally, bind a popup to the marker
-                marker.bindPopup(`<strong>Person Name:</strong> ${person.name}<br><strong>Date:</strong> ${location.date}`);
+                marker.bindPopup(`<strong>Person Name:</strong> ${person.name}<br><strong>Date:</strong> ${JSON.stringify(Date(location.date.$date))}`);
             });
+
         });
+
+        document.getElementById('suspectNames').innerText = ('Found Suspects: ' + names.join(', '))
+
     }
 
     // Initial check

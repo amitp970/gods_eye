@@ -136,14 +136,13 @@
 
         </section>
         
-        <div id="blacklistMapContainer">
-            <div id="blacklistMap"></div>
-            <button onclick="$('#blacklistMapContainer').hide()">Close</button>
+        <div id="blacklistMapContainer" class="card">
+            <p id="suspectNames"></p>
+            <div id="blacklistMap" class="card"></div>
+            <button class="btn w-100" id="mapCloseBtn" onclick="$('#blacklistMapContainer').hide()">Close</button>
         </div>
 
-        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-        
-        
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>       
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <!-- Bootstrap Bundle with Popper -->

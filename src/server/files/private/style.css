@@ -12,4 +12,17 @@
   z-index: 1000; /* Make sure it's on top */
   border: 2px solid red;
   padding: 20px;
+  height: 80%;
+  width: 60%;
+  background-color: red;
+}
+
+#blacklistMap {
+  height: 90%;
+  margin-bottom: 10px;
+}
+
+#mapCloseBtn {
+  color: white;
+  background-color: black;
 }

@@ -98,9 +98,10 @@
         </div>
     </section>
 
-    <div id="blacklistMapContainer">
-        <div id="blacklistMap"></div>
-        <button onclick="$('#blacklistMapContainer').hide()">Close</button>
+    <div id="blacklistMapContainer" class="card">
+        <p id="suspectNames"></p>
+        <div id="blacklistMap" class="card"></div>
+        <button class="btn w-100" id="mapCloseBtn" onclick="$('#blacklistMapContainer').hide()">Close</button>
     </div>
 
     <!-- jQuery -->
