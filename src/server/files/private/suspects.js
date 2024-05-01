@@ -1,5 +1,3 @@
-
-
 // Initialize DataTable just once when the document is ready
 $(document).ready(function() {
 
@@ -118,7 +116,10 @@ document.getElementById('searchSuspectForm').addEventListener('submit', function
                                 date: new Date(location.date.$date)
                             })));
                         })
-                        .catch(error => console.error('Error:', error));
+                        .catch(error => {
+                            console.error('Error:', error)
+                            initMap()
+                        });
                     }
                 };
                 reader.readAsDataURL(file); // Converts the image to base64

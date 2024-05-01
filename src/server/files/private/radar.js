@@ -41,7 +41,7 @@ $(document).ready(function() {
                 table.row.add({
                     "ip": ip,
                     "port": camera.port,
-                    "location": camera.location || 'Unknown',
+                    "location": JSON.stringify(camera.location) || 'Unknown',
                     "last_seen": new Date(camera.last_seen * 1000).toLocaleString(),
                     "connect": null                    
                 });
@@ -71,6 +71,8 @@ $(document).ready(function() {
             console.error('Error connecting to camera:', error);
         });
     });
+
+    fetchCameraRadarUpdates()
 
     setInterval(fetchCameraRadarUpdates, 5000);  // Fetch updates every 5 seconds
 });
@@ -118,7 +120,7 @@ $(document).ready(function() {
                 connectedCamerasTable.row.add({
                     "ip": ip,
                     "port": camera.port,
-                    "location": camera.location || 'Unknown',
+                    "location": JSON.stringify(camera.location) || 'Unknown',
                     "disconnect": null                    
                 });
             }
@@ -147,6 +149,8 @@ $(document).ready(function() {
             console.error('Error disconnecting camera:', error);
         });
     });
+
+    fetchConnectedCamerasUpdates()
 
     setInterval(fetchConnectedCamerasUpdates, 5000);  // Fetch updates every 5 seconds
 });

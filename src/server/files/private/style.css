@@ -1,0 +1,15 @@
+.logo-size {
+  width: 100px;
+  height: auto;
+}
+
+#blacklistMapContainer {
+  display: none; 
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000; /* Make sure it's on top */
+  border: 2px solid red;
+  padding: 20px;
+}
