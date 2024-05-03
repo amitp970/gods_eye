@@ -57,7 +57,7 @@
         </section> -->
 
 
-        <section class="container-fluid p-5">
+        <section class="container-fluid px-5 pt-3 ">
             <div class="row">
                 <div class="col m-2 p-3 card">
                     <h2 class="text-center">
@@ -135,6 +135,59 @@
             </div>
 
         </section>
+
+        <section class="px-5 container-fluid">
+            <div id="suspectStats" class="card container-fluid p-3">
+                <div class="row text-center g-2">
+                    <h1>Search Stats</h1>
+                </div>
+                
+                <div class="row g-2">
+                    <div class="card col m-2 p-2" id="basicNumbers">
+                        <h2 class="text-center">Basic Numbers</h2>
+                        <h5 id="totalSightings">Total Sightings: </h5>
+                        <h5 id="uniqueLocationsCount">Unique Locations Count: </h5>
+                        <h5 id="uniqueDatesCount">Unique Dates Count: </h5>
+                    </div>
+
+                    <div class="card col m-2 p-2">
+                        <h2 class="text-center">Most Frequent Analysis</h2>
+                        <h5 id="mf_date">Date: </h5>
+                        <h5 id="mf_dateOcurrences">Date Ocurrences Count: </h5>
+                        <h5 id="mf_location">Location: </h5>
+                        <h5 id="mf_locationOcurrences">Location Ocurrences Count:</h5>
+                    </div>
+                    <div class="col card p-2 m-2 text-center">
+                        <h2>Average Time Spent Per Location</h2>
+                        <table id="avgTimeTable" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Average Time(Seconds)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="row g-2">
+
+                    <div class="col card p-2 m-2 text-center">
+                        <h2>Dates Graph</h2>
+                        <canvas id="datesGraph" width="200" height="200"></canvas>
+
+                    </div>
+                    <div class="col card p-2 m-2 text-center">
+                        <h2>Locations Graph</h2>
+                        <canvas id="locationsGraph" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
         
         <div id="blacklistMapContainer" class="card">
             <p id="suspectNames"></p>
@@ -151,6 +204,10 @@
         <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
 
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+        <script src="suspectStatictics.js"></script>
         <script src="suspects.js"></script>
         <script src="mapScript.js"></script>
         <script src="blacklist/blacklist.js"></script>

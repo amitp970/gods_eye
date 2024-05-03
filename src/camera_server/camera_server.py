@@ -5,6 +5,7 @@ import time
 import numpy as np
 import base64
 import json
+from datetime import datetime
 
 from src.core.protocol import send_data, receive_data
 from .config import settings
@@ -77,7 +78,7 @@ class CameraServer:
                     jpg_as_text = base64.b64encode(buffer).decode('utf-8')
                     # serialized_frame = buffer.tobytes()
                     
-                    if not send_data(client_socket, {'frame': jpg_as_text}):
+                    if not send_data(client_socket, {'frame': jpg_as_text, 'time': datetime.now().strftime('%Y%m%d_%H%M%S')}):
                         print("Couldn't send message: disconnecting client.")
                         break
             finally:

@@ -29,7 +29,7 @@ class CameraClient:
         frame = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         return frame
     
-    def write_file(self, frame):
+    def write_file(self, frame, time=datetime.now().strftime('%Y%m%d_%H%M%S')):
         """
         Asynchronously writes cropped images from detected objects to files.
         
@@ -48,7 +48,7 @@ class CameraClient:
 
         os.makedirs(imgs_path, exist_ok=True)
 
-        file_path = f"{imgs_path}/{uuid.uuid4()}-{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+        file_path = f"{imgs_path}/{uuid.uuid4()}-{time}.jpg"
         with open(file_path, 'wb') as f:
             f.write(cv2.imencode('.jpg', frame)[1].tobytes())
 
@@ -63,9 +63,10 @@ class CameraClient:
                     break
 
                 frame = self.decode_frame(frame_info['frame'])
+                time = frame_info['time']
 
                 # NOTE: write the frame to the correct folder data/cameras/{location}/{uuid4()}.jpg()
-                self.write_file(frame)
+                self.write_file(frame, time)
 
                 # # Display the frame
                 # cv2.imshow('Live Video', frame)

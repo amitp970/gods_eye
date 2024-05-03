@@ -39,7 +39,7 @@ BLACKLIST_PATH = f'{PRIVATE_FILES_PATH}/blacklist/blacklist.json'
 if not blacklist:
     if os.path.isfile(BLACKLIST_PATH):
         with open(BLACKLIST_PATH, 'r') as f:
-            blacklist = json.load(f)
+            blacklist = json_util.loads(f.read())
 
 class Functions:
 
@@ -340,7 +340,7 @@ class Functions:
             cv2.imwrite(PRIVATE_FILES_PATH + blacklist[_id]['profilePhotoUrl'], image_processor.get_face_from_image(images[0]))
 
             with open(BLACKLIST_PATH, 'w') as f:
-                json.dump(blacklist, f)
+                f.write(json_util.dumps(blacklist))
 
             return {
                 'code': 200,
@@ -374,12 +374,24 @@ class Functions:
 
                 for embedding in suspect['embeddings']:
                     if person := image_processor.match_embedding_to_person(embedding=embedding, suspect_name=suspect['suspectName']):
-                        criminalsFound.append(person)
-            
+
+                        locations = person['locations']
+
+                        last_seen = locations[-1]
+
+                        if not 'last_seen' in suspect:
+                            suspect['last_seen'] = None
+
+                        if suspect['last_seen'] != last_seen:
+                            criminalsFound.append(person)
+                            suspect['last_seen'] = last_seen
+                        
+                        break
+                
             return {
                 'code' : 200,
                 'content_type': 'application/json',
-                'data': json_util.dumps(person)
+                'data': json_util.dumps(criminalsFound)
             }
         except Exception as e:
             print(e)

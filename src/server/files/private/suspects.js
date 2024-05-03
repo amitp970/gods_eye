@@ -115,6 +115,10 @@ document.getElementById('searchSuspectForm').addEventListener('submit', function
                                 },
                                 date: new Date(location.date.$date)
                             })));
+
+                            analysisData = analyzeLocationData(data)
+
+                            renderStats(analysisData)
                         })
                         .catch(error => {
                             console.error('Error:', error)
