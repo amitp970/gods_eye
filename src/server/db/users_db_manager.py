@@ -23,3 +23,6 @@ class UsersDbManager:
     
     def delete_user(self, username):
         self.db_manager.execute_update("DELETE FROM users WHERE username = ?", (username,))
+
+    def get_users(self):
+        return self.db_manager.execute_query_all("SELECT username, role FROM users")

@@ -64,7 +64,7 @@ $(document).ready(function() {
             console.log('Suspect Removal response: ', data)
 
             if (data.success) {
-                var row = $(this).closest('tr'); // Find the row element
+                let row = $(this).closest('tr'); // Find the row element
                 blacklistTable.row(row).remove().draw(); // Remove the row from the DataTable and redraw
             }
         })

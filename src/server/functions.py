@@ -132,33 +132,97 @@ class Functions:
     
 
     @staticmethod
-    @route("/signup")
+    @route("/addUser")
     @role(0)
     def signup(*args, **kwargs):
-        
-        body = kwargs['body']
-        data_dict = json.loads(body)
+        try:
+            
+            body = kwargs['body']
+            data_dict = json.loads(body)
 
-        username = data_dict['username']
-        password = data_dict['password']
+            username = data_dict['username']
+            password = data_dict['password']
 
-        is_success, msg = verifier.add_user(username, password)
+            is_success, msg = verifier.add_user(username, password)
 
-        if is_success:
+            if is_success:
+                return {
+                    'code' : 200,
+                    'content_type' : 'application/json',
+                    'data' : json.dumps({'message': msg, 'success': True})
+                }
+            else:
+                return {
+                    'code' : 401,
+                    'content_type' : 'application/json',
+                    'data' : json.dumps({'message': f'{msg}'}),
+                }
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
             return {
-                'code' : 302,
-                'content_type' : 'text/javascript',
-                'data' : """<html><body>User creation successful. Redirecting...</body></html>""",
-                'additional_headers' : {
-                    'Location': '/login.html'
-                    }
-            }
-        else:
-            return {
-                'code' : 401,
+                'code' : 500,
                 'content_type' : 'application/json',
-                'data' : json.dumps({'message': f'{msg}'}),
+                'data' : json.dumps({'message': 'could not add user', 'error' : str(e)}),
             }
+        
+    @staticmethod
+    @route("/removeUser")
+    @role(0)
+    def remove_user(*args, **kwargs):
+        try:
+            body = kwargs['body']
+            data_dict = json.loads(body)
+
+            username = data_dict['username']
+
+            if verifier.remove_user(username):
+                return {
+                    'code': 200,
+                    'content_type': 'application/json',
+                    'data': json.dumps({'message': f'Removed User: {username}', 'success': True})
+                }
+            
+            return {
+                    'code': 200,
+                    'content_type': 'application/json',
+                    'data': json.dumps({'message': f'Could not Remove User: {username}', 'success': False})
+            }
+
+
+
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': f'Error when trying to remove user: {username}', 'error' : str(e), 'success': False}),
+            }
+        
+            
+
+    @staticmethod
+    @route("/getUsers")
+    @role(0)
+    def get_users(*args, **kwargs):
+        try:
+            users = verifier.get_users()
+            
+            return {
+                'code': 200,
+                'content_type': 'application/json',
+                'data': json.dumps(users)
+            }
+
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+
+    
     
     @staticmethod
     @route("/connect_camera")

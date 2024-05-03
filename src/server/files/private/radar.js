@@ -131,8 +131,7 @@ $(document).ready(function() {
 
     // Event delegation to handle clicks on dynamically created buttons
     $('#connectedCamerasTable tbody').on('click', '.disconnect-btn', function() {
-        var ip = $(this).data('ip');  // Get the IP address from the button's data attribute
-        console.log("Connecting to IP:", ip);
+        let ip = $(this).data('ip');  // Get the IP address from the button's data attribute
         // Send a POST request to the server
         fetch('/disconnect_camera', {
             method: 'POST',
