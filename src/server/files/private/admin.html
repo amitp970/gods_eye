@@ -27,7 +27,7 @@
                         <a href="cameras.html" class="nav-link">Cameras</a>
                     </li>
                     <li class="nav-item">
-                        <a href="modes.html" class="nav-link">Modes</a>
+                        <a href="modes.html" class="nav-link">Search Modes</a>
                     </li>
                     <li class="nav-item">
                         <a href="admin.html" class="nav-link">Admin</a>
@@ -96,6 +96,13 @@
     </section>
 
 
+    <div id="blacklistMapContainer" class="card">
+        <p id="suspectNames"></p>
+        <div id="blacklistMap" class="card"></div>
+        <button class="btn w-100" id="mapCloseBtn" onclick="$('#blacklistMapContainer').hide()">Close</button>
+    </div>
+
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap Bundle with Popper -->
@@ -105,6 +112,7 @@
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
 
     <script src="admin.js"></script>
+    <script src="blacklist/blacklistChecker.js"></script>
 </body>
 
 </html>

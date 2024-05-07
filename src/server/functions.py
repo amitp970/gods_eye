@@ -11,7 +11,10 @@ import os
 from .auth.verifier import Verifier
 from .camera_connections.camera_radar import CameraRadar
 from .camera_connections.camera_client import CameraClient
+from .camera_connections.camera_connections import CameraConnections, CameraConnection
+from .camera_connections.live_server import LiveServer
 from .image_process.process_images import ImageProcessor
+
 
 
 PRIVATE_FILES_PATH = "src/server/files/private"
@@ -21,15 +24,17 @@ services = []
 
 verifier = Verifier()
 
-radar = CameraRadar()
-radar.start()
-services.append(radar)
+camera_connections = CameraConnections()
+services.append(camera_connections)
 
-camera_clients = {}
+live_server = LiveServer()
+services.append(live_server)
 
 image_processor = ImageProcessor()
-image_processor.start()
 services.append(image_processor)
+
+for service in services:
+    service.start()
 
 
 os.makedirs(f'{PRIVATE_FILES_PATH}/blacklist/profile_photos/', exist_ok=True)
@@ -224,41 +229,41 @@ class Functions:
 
     
     
-    @staticmethod
-    @route("/connect_camera")
-    @role(0)
-    def create_camera_connection(*args, **kwargs):
-        try:
-            body = kwargs['body']
-            data_dict = json.loads(body)
+    # @staticmethod
+    # @route("/connect_camera")
+    # @role(0)
+    # def create_camera_connection(*args, **kwargs):
+    #     try:
+    #         body = kwargs['body']
+    #         data_dict = json.loads(body)
 
-            camera_ip = data_dict['IP']
+    #         camera_ip = data_dict['IP']
 
-            if camera_ip in (camera_details := radar.get_available_cameras()):
-                camera_details = camera_details[camera_ip]
-                camera_client = CameraClient(camera_ip, camera_details['port'], camera_details['location'])
-                threading.Thread(target=camera_client.start).start()
-                camera_clients[camera_ip] = camera_client   
+    #         if camera_ip in (camera_details := radar.get_available_cameras()):
+    #             camera_details = camera_details[camera_ip]
+    #             camera_client = CameraClient(camera_ip, camera_details['port'], camera_details['location'])
+    #             threading.Thread(target=camera_client.start).start()
+    #             camera_clients[camera_ip] = camera_client   
 
-                return {
-                    'code': 200,
-                    'content_type': 'application/json',
-                    'data': json.dumps({'message': f'Connected to {camera_ip}'})
-                }             
+    #             return {
+    #                 'code': 200,
+    #                 'content_type': 'application/json',
+    #                 'data': json.dumps({'message': f'Connected to {camera_ip}'})
+    #             }             
 
-        except Exception as e:
-            print(e)
-            return {
-                'code' : 500,
-                'content_type' : 'application/json',
-                'data' : json.dumps({'message': 'could not establish connection', 'error' : str(e)}),
-            }
+    #     except Exception as e:
+    #         print(e)
+    #         return {
+    #             'code' : 500,
+    #             'content_type' : 'application/json',
+    #             'data' : json.dumps({'message': 'could not establish connection', 'error' : str(e)}),
+    #         }
 
-        return {
-            'code' : 500,
-            'content_type' : 'application/json',
-            'data' : json.dumps({'message': 'could not establish connection'}),
-        }
+    #     return {
+    #         'code' : 500,
+    #         'content_type' : 'application/json',
+    #         'data' : json.dumps({'message': 'could not establish connection'}),
+    #     }
     
     @staticmethod
     @route("/disconnect_camera")
@@ -268,11 +273,15 @@ class Functions:
             body = kwargs['body']
             data_dict = json.loads(body)
 
-            camera_ip = data_dict['IP']
+            camera_id = data_dict['id']
 
-            if camera_ip in camera_clients:
-                camera_clients[camera_ip].stop()
-                del camera_clients[camera_ip]             
+            if camera_connections.disconnect_camera(camera_id):  
+
+                return {
+                    'code': 200,
+                    'content_type': 'application/json',
+                    'data': json.dumps({'message': f'Disconnected From {camera_id}', 'success' : True})
+                }           
 
         except Exception as e:
             print(e)
@@ -306,11 +315,11 @@ class Functions:
 
         try:
 
-            for camera_ip in camera_clients:
-                camera = camera_clients[camera_ip]
-                cameras[camera_ip] = {
-                    'host': camera.host,
-                    'port': camera.port,
+            for _, camera_conn in camera_connections.get_cameras().items():
+                camera = camera_conn
+                cameras[f'{camera_conn.camera_id}'] = {
+                    'host': camera.camera_ip,
+                    'port': camera.camera_port,
                     'location': camera.camera_location
                 }
         except Exception as e:
@@ -328,6 +337,82 @@ class Functions:
             'content_type' : 'application/json',
             'data' : json.dumps(cameras)
         }
+    
+    @staticmethod
+    @route("/startLive")
+    @role(1)
+    def start_live(*args, **kwargs):
+        try: 
+            body = kwargs['body']
+            data_dict = json.loads(body)
+
+            camera_id = data_dict['id']
+
+            camera = camera_connections.get_camera_connection(camera_id)
+            
+            if camera:
+                camera.start_live()
+
+                return {
+                    'code' : 200,
+                    'content_type' : 'application/json',
+                    'data' : json.dumps({'message': f'Started Live Video from {camera_id}', 'success' : True})
+                }
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': f'Could not find and start live video with {camera_id}'}),
+            }
+        
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'Error on starting live video'}),
+            }
+        
+
+    @staticmethod
+    @route("/stopLive")
+    @role(1)
+    def start_live(*args, **kwargs):
+        try: 
+            body = kwargs['body']
+            data_dict = json.loads(body)
+
+            camera_id = data_dict['id']
+
+            camera = camera_connections.get_camera_connection(camera_id)
+            
+            if camera:
+                camera.stop_live()
+
+                return {
+                    'code' : 200,
+                    'content_type' : 'application/json',
+                    'data' : json.dumps({'message': f'Stopped Live Video from {camera_id}', 'success' : True})
+                }
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': f'Could not find and Stop live video with {camera_id}'}),
+            }
+        
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+            return {
+                'code' : 500,
+                'content_type' : 'application/json',
+                'data' : json.dumps({'message': 'Error on stopping live video'}),
+            }
+
     
     @staticmethod
     def parseSuspectFormData(*args, **kwargs):

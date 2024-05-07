@@ -1,14 +1,13 @@
 import socket
-import ssl
 import json
 import struct
 
 def send_data(sock: socket.socket, message):
     """
-    Send a JSON message through an SSL socket with a header indicating the message length.
+    Send a JSON message through a socket with a header indicating the message length.
     
     Args:
-        sock (ssl.SSLSocket): The SSL socket through which the message will be sent.
+        sock (socket.socket): The socket through which the message will be sent.
         message (dict): A dictionary containing the message to send.
     """
     try:
@@ -23,10 +22,10 @@ def send_data(sock: socket.socket, message):
 
 def receive_data(sock: socket.socket):
     """
-    Receive a JSON message from an SSL socket, reading the message length from the header first.
+    Receive a JSON message from a socket, reading the message length from the header first.
     
     Args:
-        sock (ssl.SSLSocket): The SSL socket from which the message will be received.
+        sock (socket.socket): The socket from which the message will be received.
         
     Returns:
         dict: The received JSON message as a dictionary, or None if an error occurs.
@@ -47,6 +46,7 @@ def receive_data(sock: socket.socket):
             received_data += part
 
         resp = json.loads(received_data.decode('utf-8'))
+
         return resp
     except json.JSONDecodeError:
         print("Error decoding JSON data.")

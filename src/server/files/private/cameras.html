@@ -31,7 +31,7 @@
                         <a href="cameras.html" class="nav-link">Cameras</a>
                     </li>
                     <li class="nav-item">
-                        <a href="modes.html" class="nav-link">Modes</a>
+                        <a href="modes.html" class="nav-link">Search Modes</a>
                     </li>
                     <li class="nav-item">
                         <a href="admin.html" class="nav-link">Admin</a>
@@ -63,26 +63,6 @@
         </div>
     </section>
 
-    <section class="p-5 text-center text-sm-start">
-        <div class="container-fluid m-2 p-3 card"">
-            <h1 class="mb-3">Camera Radar</h1>
-            <table id="cameraRadarTable" class="table table-striped" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>IP</th>
-                        <th>Port</th>
-                        <th>Location</th>
-                        <th>Last Seen</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be inserted here -->
-                </tbody>
-            </table>
-        </div>
-    </section>
-
     <section class="text-center px-5 text-sm-start">
         <div class="container-fluid m-2 p-3 card"">
             <h1 class="mb-3">Connected Cameras</h1>
@@ -102,6 +82,13 @@
         </div>
     </section>
 
+    <section class="px-5">
+        <div class="container m-2 p-3 row-cols-3" id="liveVideos">
+  
+        </div>
+
+    </section>
+
     <div id="blacklistMapContainer" class="card">
         <p id="suspectNames"></p>
         <div id="blacklistMap" class="card"></div>
@@ -115,8 +102,9 @@
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 
-    <script src="radar.js"></script>
+    <script src="cameras.js"></script>
     <script src="blacklist/blacklistChecker.js"></script>
 </body>
 

@@ -76,7 +76,6 @@ class CameraServer:
                     # Process and send the frame (here you would typically serialize the frame)
                     _, buffer = cv2.imencode('.jpg', frame)
                     jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-                    # serialized_frame = buffer.tobytes()
                     
                     if not send_data(client_socket, {'frame': jpg_as_text, 'time': datetime.now().strftime('%Y%m%d_%H%M%S')}):
                         print("Couldn't send message: disconnecting client.")

@@ -28,7 +28,7 @@
                             <a href="cameras.html" class="nav-link">Cameras</a>
                         </li>
                         <li class="nav-item">
-                            <a href="modes.html" class="nav-link">Modes</a>
+                            <a href="modes.html" class="nav-link">Search Modes</a>
                         </li>
                         <li class="nav-item">
                             <a href="admin.html" class="nav-link">Admin</a>
@@ -70,6 +70,8 @@
                         </form>
                     </div>
                     <div id="map" style="height: 600px;"></div>
+
+                    <button class="btn btn-primary my-2" onclick="$('#suspectStats').show();">Show Statistics</button>
 
                 </div>
                 <div class="col m-2 p-3 card">
@@ -122,10 +124,10 @@
 
         </section>
 
-        <section class="px-5 container-fluid">
-            <div id="suspectStats" class="card container-fluid p-3">
+        <section class="px-5">
+            <div id="suspectStats" class="card container-fluid p-3 bg-dark text-light">
                 <div class="row text-center g-2">
-                    <h1>Search Stats</h1>
+                    <h1>Search Statistics</h1>
                 </div>
                 
                 <div class="row g-2">
@@ -164,13 +166,17 @@
 
                     <div class="col card p-2 m-2 text-center">
                         <h2>Dates Graph</h2>
-                        <canvas id="datesGraph" width="200" height="200"></canvas>
+                        <canvas id="datesGraph" width="100" height="60" class="graph"></canvas>
 
                     </div>
                     <div class="col card p-2 m-2 text-center">
                         <h2>Locations Graph</h2>
-                        <canvas id="locationsGraph" width="200" height="200"></canvas>
+                        <canvas id="locationsGraph" width="100" height="60" class="graph"></canvas>
                     </div>
+                </div>
+
+                <div class="row g-2 p-2">
+                    <button class="btn btn-primary" onclick="$('#suspectStats').hide()">Close Statistics</button>
                 </div>
             </div>
         </section>
