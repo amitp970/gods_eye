@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>God's Eye - Help</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            color: #fff;
+        }
+
+        .navbar {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .help-section {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding: 10px;
+            text-align: center;
+            background-color: #111;
+            color: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 px-5">
+        <div class="container-fluid">
+            <a href="./home.html" class="navbar-brand">God's Eye</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navmenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="cameras.html" class="nav-link">Cameras</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="modes.html" class="nav-link">Search Modes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="admin.html" class="nav-link">Admin</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="help.html" class="nav-link">Help</a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="help-section">
+            <h2 class="section-title">Connected Cameras</h2>
+            <p>This section displays the IP, Port, and Location of all connected cameras. It will show "No data
+                available" if no cameras are connected.</p>
+            <p>To add a new camera, setup and activate the camera client on a machine that is connected to the desired
+                camera.</p>
+        </section>
+
+        <section class="help-section">
+            <h2 class="section-title">User Management</h2>
+            <p>The "Admin" page allows you to manage user accounts:</p>
+            <ul>
+                <li><b>Username:</b> Displays the username of each account.</li>
+                <li><b>Access Level:</b>
+                    <ul>
+                        <li>0: Administrator</li>
+                        <li>1: Regular User</li>
+                    </ul>
+                </li>
+                <li><b>Actions:</b> Remove users by clicking the "Remove" button next to each account.</li>
+            </ul>
+            <p>To add a new user, fill out the "Add User" form on the Admin page with the desired username and password,
+                and click "Submit".</p>
+        </section>
+
+        <section class="help-section">
+            <h2 class="section-title">Suspect Search and Blacklist</h2>
+            <p>On the "Search Modes" page, you can search for suspects and manage the blacklist.</p>
+            <ul>
+                <li><b>Suspect Search:</b>
+                    <ul>
+                        <li>Enter the full name in the search form and upload relevant images of the suspect to identify
+                            the suspect. </li>
+                        <li>If the suspect is found in the system, the map will automatically update and display the
+                            relevent location and time of his appearences.</li>
+                        <li>Suspect statistics will appear when pressing the "Show Statistics" button bellow the map.
+                        </li>
+                    </ul>
+                </li>
+                <li><b>Blacklist:</b>
+                    <ul>
+                        <li><b>Additions:</b> Fill in the form to add a suspect to the blacklist.</li>
+                        <li><b>Table:</b> View the current blacklist with options to remove individuals.</li>
+                        <li><b>Functionality:</b> If a blacklisted person is identified, the system will alert the
+                            user(On any page in the Web Application) by opening a popup map that displays the
+                            appropriate coordinates.</li>
+                    </ul>
+                </li>
+
+
+            </ul>
+        </section>
+
+        <section class="help-section">
+            <h2 class="section-title">Statistics</h2>
+            <p>The "Show Statistics" button on the Search Modes page provides detailed statistics about the suspect's
+                search result:</p>
+            <ul>
+                <li><b>Basic Numbers:</b> 
+                    <ul>
+                        <li>Total Sightings</li>
+                        <li>Unique Locations Count</li>
+                        <li>Unique Dates Count</li>
+                    </ul>
+                </li>
+                <li><b>Most Frequent Analysis:</b>
+                    <ul>
+                        <li>Date</li>
+                        <li>Date Occurrences Count</li>
+                        <li>Location</li>
+                        <li>Location Occurrences Count</li>
+                    </ul>
+                </li>
+                <li><b>Average Time Spent Per Location:</b> A table displays the average time spent at each location.</li>
+                <li><b>Graphs:</b>
+                    <ul>
+                        <li>Dates Graph</li>
+                        <li>Locations Graph</li>
+                    </ul>
+                </li>
+                <li><b>Control Buttons:</b> Close the statistics window using the "Close Statistics" button.</li>
+            </ul>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>© 2024 God's Eye. All rights reserved.</p>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

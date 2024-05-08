@@ -9,7 +9,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1000; /* Make sure it's on top */
+  z-index: 99999; /* Make sure it's on top */
   border: 2px solid red;
   padding: 20px;
   height: 80%;
@@ -42,3 +42,37 @@
 transform: scale(1.1);
 transition: 1s ease;
 }
+
+.videoImg {
+  height: 300px;
+  /* width: 400px; */
+}
+
+
+#suspectStats {
+  display: none; 
+  position: fixed;
+  left: 50%;
+  top: 53%;
+  transform: translate(-50%, -50%);
+  z-index: 99998;
+  padding: 20px;
+  height: 95vh;
+
+  width: 100%;
+}
+
+
+.timestamp {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  width: 150px;
+}
+
+

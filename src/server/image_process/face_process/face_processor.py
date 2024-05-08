@@ -65,9 +65,7 @@ class FaceProcessor:
         async with aiofiles.open(file_path, 'rb') as f:
             content = await f.read()
 
-            print(f"Processed content of {file_path}")
         os.remove(file_path)
-        print(f"Deleted {file_path}")
     
     
     async def process_files(self, location: str, file_paths: str):

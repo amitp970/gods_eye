@@ -34,9 +34,6 @@ class Person:
 
         response = p.save(db)
 
-        print(response)
-        print('Added Person')
-
         return response
 
     @classmethod
@@ -46,7 +43,4 @@ class Person:
             {"embeddings_ids": int(embedding_id)},
             {"$push": {"locations" : {'coordinates' : location, 'date': time}, "embeddings_ids" : int(new_embedding_id)}}
         )
-        print(response)
-        print('Added sighting')
-
         return response

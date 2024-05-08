@@ -161,7 +161,6 @@ class CameraClient:
                         
 
                     while self.running and self.live:
-                        print("live streaming")
                         try:
                             frame_data = self.frame_queue.get(timeout=1)
                             if not self.send_frame(live_socket, frame=frame_data['frame'], time=frame_data['time']):
@@ -170,7 +169,6 @@ class CameraClient:
                             else:
                                 time.sleep(0.01)
                         except Empty:
-                            print('empty')
                             pass
                         except Exception as e:
                             print(e)
@@ -186,7 +184,6 @@ class CameraClient:
 
             if result:
                 self.running = True
-                print(msg)
 
                 threading.Thread(target=self.capture_frames).start()
                 threading.Thread(target=self.send_frames_for_analysis).start()

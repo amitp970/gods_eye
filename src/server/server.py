@@ -55,7 +55,6 @@ class Server:
             
             request_data = data_bytes.decode('utf-8')
 
-            print(request_data)
             try:
                 content_length = self.extract_content_length(request_data)
 
@@ -68,9 +67,7 @@ class Server:
                             request_data += client_socket.recv(header).decode('utf-8')
                     except socket.timeout as e:
                         print(e)
-                
-                print("finished reading")
-                    
+                                    
             except Exception as e:
                 print(e)
                 traceback.print_exc()

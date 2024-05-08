@@ -34,8 +34,6 @@ class LiveServer:
                     print("Exiting live feed")
                     break
 
-                print(f'getting live video: {camera_id}, ', addr,)
-
                 socketio.emit(f'live-{camera_id}', data)
         except Exception as e:
             print(e)

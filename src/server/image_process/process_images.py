@@ -32,7 +32,6 @@ class FilePathManager:
 
     def remove(self, location, file_path):
         os.remove(file_path)
-        print(f"removed: {file_path}")
         with self.lock:
             self.dq.remove((location, file_path))
             self.set.remove(file_path)

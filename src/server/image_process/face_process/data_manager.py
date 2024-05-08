@@ -124,10 +124,8 @@ class DataManager:
         if distances.size > 0 and distances[0][0] <= FeatureExtractor.FACENET_THRESHOLD_EUCLIDEAN:
 
             db_resp = self.insert_new_sighting(embedding_id=ids[0][0], new_embedding_id=new_embedding_id, location=location, time=time)
-            print('added sighting of an existing person')
         else:
             db_resp = self.insert_new_person(embedding, new_embedding_id, location, time=time)
-            print('added a new person')
         if db_resp.acknowledged:
             self.index.add_embedding_to_faiss(embedding=np.array(embedding), ids=new_embedding_ids)
 

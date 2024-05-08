@@ -39,14 +39,28 @@ $(document).ready(function () {
     function addLiveStreamDiv(id, ip, port, location) {
         // Create card container
         const card = document.createElement('div');
-        card.className = 'card p-2 container col';
+        card.className = 'card p-2 container col text-center text-light bg-dark';
         card.id = `box-${id}`;  // Unique ID for each card
 
-        // Create image container
+        const metaData = document.createElement("h2");
+        metaData.className = 'mx-3 row text-center';
+        metaData.innerText = `Camera Location: ${JSON.stringify(location)}`
+        card.appendChild(metaData)
+
+        const imageCont = document.createElement('div');
+        imageCont.className = 'row card m-3 bg-dark'
+        
         const img = document.createElement('img');
         img.id = `live-${id}`;
-        img.className = 'row card videoImg m-3';
-        card.appendChild(img);
+        img.className = 'videoImg';
+        imageCont.appendChild(img);
+        
+        const timestamp = document.createElement('div');
+        timestamp.id = `timestamp-${id}`;
+        timestamp.className = 'timestamp';
+        imageCont.appendChild(timestamp)
+        
+        card.appendChild(imageCont)
 
         // Create button container
         const buttonContainer = document.createElement('div');
@@ -147,8 +161,12 @@ $(document).ready(function () {
             if(data.success) {
                 let socket = io.connect(location.protocol + '//' + document.domain + ':' + '5000');
                 socket.on(`live-${id}`, function(data) {
-                    var img = document.getElementById(`live-${id}`);
+                    let img = document.getElementById(`live-${id}`);
                     img.src = 'data:image/jpeg;base64,' + data.frame;
+
+                    let timestamp = document.getElementById(`timestamp-${id}`);
+                    timestamp.innerText = Date(data.time)
+
                 });
             }
         })
