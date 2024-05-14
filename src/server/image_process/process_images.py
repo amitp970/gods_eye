@@ -92,6 +92,8 @@ class ImageProcessor:
     
 
     def find_images(self):
+        os.makedirs(self.folder_path, exist_ok=True)
+
         while self.is_running:
             for location in os.listdir(self.folder_path):
                 path = os.path.join(self.folder_path, location)

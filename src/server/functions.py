@@ -294,17 +294,17 @@ class Functions:
         }
 
 
-    @staticmethod
-    @route("/get_updated_camera_radar")
-    @role(1)
-    def get_updated_camera_radar(*args, **kwargs):
-        cameras = radar.get_available_cameras()
+    # @staticmethod
+    # @route("/get_updated_camera_radar")
+    # @role(1)
+    # def get_updated_camera_radar(*args, **kwargs):
+    #     cameras = radar.get_available_cameras()
 
-        return {
-            'code' : 200,
-            'content_type' : 'application/json',
-            'data' : json.dumps(cameras)
-        }
+    #     return {
+    #         'code' : 200,
+    #         'content_type' : 'application/json',
+    #         'data' : json.dumps(cameras)
+    #     }
     
     @staticmethod
     @route("/get_connected_cameras")
