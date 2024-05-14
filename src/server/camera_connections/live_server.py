@@ -25,16 +25,20 @@ class LiveServer:
         try:
             client_socket.settimeout(5)
 
-            camera_id = receive_data(client_socket)['id']
+            camera_id = receive_data(client_socket)
+            
+            if camera_id:
+                camera_id = camera_id['id']
 
-            while self.running:
-                data = receive_data(client_socket)
+                while self.running:
+                    data = receive_data(client_socket)
 
-                if not data:
-                    print("Exiting live feed")
-                    break
+                    if not data:
+                        print("Exiting live feed")
+                        break
 
-                socketio.emit(f'live-{camera_id}', data)
+                    socketio.emit(f'live-{camera_id}', data)
+                    
         except Exception as e:
             print(e)
             traceback.print_exc()
