@@ -8,7 +8,7 @@ import time
 
 from .config import settings
 
-from .face_recognition import FaceRecognition
+from .face_process.face_recognition import FaceRecognition
 from .face_process.data_manager import DataManager
 from .face_process.deepface_encapsulator import FeatureExtractor
 
@@ -86,7 +86,7 @@ class ImageProcessor:
         self.process_images_thread = threading.Thread(target=self.process_images)
         self.process_faces_thread = threading.Thread(target=self.process_faces)
 
-        self.conf_threshold = 0.4
+        self.conf_threshold = 0.25
 
         self.is_running = True
     

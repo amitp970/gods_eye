@@ -379,7 +379,7 @@ class Functions:
     @staticmethod
     @route("/stopLive")
     @role(1)
-    def start_live(*args, **kwargs):
+    def stop_live(*args, **kwargs):
         try: 
             body = kwargs['body']
             data_dict = json.loads(body)

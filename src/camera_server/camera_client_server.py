@@ -53,33 +53,6 @@ class CameraClient:
         except Exception as e:
             print(e)
             traceback.print_exc()
-    
-    def save_frames(self, cap, frame_rate=30, duration_minutes=5):
-        max_frames = frame_rate * 60 * duration_minutes
-        frame_count = 0
-        output_dir = "src/camera_server/data"
-        os.makedirs(output_dir, exist_ok=True)
-
-        while self.running:
-            frame_data = self.frame_queue.get()
-
-            frame = frame_data['frame']
-            frame_time = frame_data['time']
-
-            
-            # Save the frame to disk
-            frame_filename = os.path.join(output_dir, f"{frame_time}_{frame_count}.jpg")
-            cv2.imwrite(frame_filename, frame)
-            self.frame_buffer.append(frame_filename)
-            frame_count += 1
-
-            # If we exceed the max number of frames, remove the oldest
-            if len(self.frame_buffer) > max_frames:
-                oldest_frame = self.frame_buffer.popleft()
-                os.remove(oldest_frame)
-
-            # Sleep to simulate the capture rate
-            time.sleep(1 / frame_rate)
 
     def connect_to_server(self):
         self.sock.connect((self.server_host, self.server_port))
