@@ -78,7 +78,7 @@ class DataManager:
 
         self.index = ThreadSafeFaissIndex(index_path=index_path)
 
-    def insert_new_person(self, embedding, embedding_id, location, time):
+    def insert_new_person(self, embedding_id, location, time):
         """
         Inserts a new person into the database with a unique ID and location.
         
@@ -86,7 +86,7 @@ class DataManager:
             id (UUID): The unique identifier for the new person.
             location (tuple): The location of the new person sighting.
         """
-        return Person.create_person(self.db, embedding=embedding, embedding_id=embedding_id,  location=location, time=time)
+        return Person.create_person(self.db, embedding_id=embedding_id,  location=location, time=time)
     
     def insert_new_sighting(self, embedding_id, new_embedding_id, location, time):
         """
@@ -125,7 +125,7 @@ class DataManager:
 
             db_resp = self.insert_new_sighting(embedding_id=ids[0][0], new_embedding_id=new_embedding_id, location=location, time=time)
         else:
-            db_resp = self.insert_new_person(embedding, new_embedding_id, location, time=time)
+            db_resp = self.insert_new_person(new_embedding_id, location, time=time)
         if db_resp.acknowledged:
             self.index.add_embedding_to_faiss(embedding=np.array(embedding), ids=new_embedding_ids)
 

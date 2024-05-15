@@ -22,7 +22,7 @@ class Person:
 
 
     @classmethod
-    def create_person(cls, db, embedding, embedding_id, location, time=datetime.now()):
+    def create_person(cls, db, embedding_id, location, time=datetime.now()):
         # This class method creates a person and inserts it's embedding and location_time to the db.
         p = Person()
         location_time = {

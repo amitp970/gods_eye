@@ -20,7 +20,7 @@ class LiveServer:
 
         self.running = False
 
-    def handle_client(self, client_socket, addr):
+    def handle_client(self, client_socket):
 
         try:
             client_socket.settimeout(5)

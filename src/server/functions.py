@@ -13,7 +13,7 @@ from .camera_connections.camera_radar import CameraRadar
 from .camera_connections.camera_client import CameraClient
 from .camera_connections.camera_connections import CameraConnections, CameraConnection
 from .camera_connections.live_server import LiveServer
-from .image_process.process_images import ImageProcessor
+from .image_process.image_processor import ImageProcessor
 
 
 
@@ -374,7 +374,6 @@ class Functions:
                 'content_type' : 'application/json',
                 'data' : json.dumps({'message': 'Error on starting live video'}),
             }
-        
 
     @staticmethod
     @route("/stopLive")
