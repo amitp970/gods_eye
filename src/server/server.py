@@ -1,3 +1,14 @@
+"""
+This module sets up and runs a basic HTTP server.
+
+Imports:
+    - socket: Provides low-level networking interface.
+    - threading: Allows for the creation and management of threads.
+    - traceback: Provides methods for extracting, formatting, and printing stack traces.
+    - .request_handler.RequestHandler: Custom module to handle HTTP requests.
+    - .functions.services: List of services that need to be stopped when the server shuts down.
+"""
+
 import socket
 import threading
 import traceback
@@ -6,7 +17,19 @@ from .request_handler import RequestHandler
 from .functions import services
 
 class Server:
+    """
+    A simple HTTP server class that handles incoming client connections and processes HTTP requests.
+    """
+
     def __init__(self, ip=socket.gethostbyname(socket.gethostname()), port=80, root='./src/server/files'):
+        """
+        Initializes the server with the given IP address, port, and root directory.
+
+        Args:
+            ip (str): The IP address to bind the server to. Defaults to the local machine's IP.
+            port (int): The port to bind the server to. Defaults to 80.
+            root (str): The root directory for the server files. Defaults to './src/server/files'.
+        """
         self.ip = ip
         self.port = port
         self.root = root
@@ -14,6 +37,9 @@ class Server:
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
     def start(self):
+        """
+        Starts the server, binds it to the specified IP and port, and begins listening for incoming connections.
+        """
         try:
             self.socket.bind((self.ip, self.port))
             self.socket.listen(5)
@@ -34,7 +60,15 @@ class Server:
             self.socket.close()
 
     def extract_content_length(self, http_request):
-        """Extract the Content-Length from a raw HTTP request string."""
+        """
+        Extracts the Content-Length from a raw HTTP request string.
+
+        Args:
+            http_request (str): The raw HTTP request string.
+
+        Returns:
+            str: The content length if found, otherwise None.
+        """
         # Split the request into lines
         lines = http_request.split('\n')
         # Iterate through each line
@@ -47,6 +81,12 @@ class Server:
         return None
     
     def handle_client(self, client_socket):
+        """
+        Handles an incoming client connection, processes the HTTP request, and sends back the response.
+
+        Args:
+            client_socket (socket.socket): The socket connected to the client.
+        """
         try:
             bytes_read = 0
             header = 1024
@@ -82,7 +122,6 @@ class Server:
         finally:
             client_socket.close()
 
-
-if __name__=='__main__':
+if __name__ == '__main__':
     server = Server()
     server.start()

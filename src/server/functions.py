@@ -1,3 +1,24 @@
+"""
+This module contains a set of functions and utilities for managing camera connections, user sessions, and blacklists.
+
+Imports:
+    - json: Provides methods to work with JSON data.
+    - threading: Allows for the creation and management of threads.
+    - traceback: Provides methods for extracting, formatting, and printing stack traces.
+    - base64: Provides methods for encoding and decoding Base64 data.
+    - numpy as np: Provides support for large, multi-dimensional arrays and matrices.
+    - cv2: OpenCV library for computer vision tasks.
+    - bson.json_util: Provides BSON (Binary JSON) utilities for working with MongoDB documents.
+    - uuid: Provides methods for generating universally unique identifiers.
+    - os: Provides a way of using operating system-dependent functionality.
+    - .auth.verifier.Verifier: Custom verifier module for authentication.
+    - .camera_connections.camera_radar.CameraRadar: Custom module for camera radar connections.
+    - .camera_connections.camera_client.CameraClient: Custom module for camera client connections.
+    - .camera_connections.camera_connections.CameraConnections, CameraConnection: Custom modules for managing multiple camera connections.
+    - .camera_connections.live_server.LiveServer: Custom module for live server connections.
+    - .image_process.process_images.ImageProcessor: Custom module for image processing.
+"""
+
 import json
 import threading
 import traceback
@@ -14,7 +35,6 @@ from .camera_connections.camera_client import CameraClient
 from .camera_connections.camera_connections import CameraConnections, CameraConnection
 from .camera_connections.live_server import LiveServer
 from .image_process.image_processor import ImageProcessor
-
 
 
 PRIVATE_FILES_PATH = "src/server/files/private"
@@ -47,9 +67,21 @@ if not blacklist:
             blacklist = json_util.loads(f.read())
 
 class Functions:
+    """
+    A class to encapsulate various static utility functions used throughout the application.
+    """
 
     @staticmethod
     def role(required_role):
+        """
+        A decorator to check the user's role before allowing access to certain functions.
+
+        Args:
+            required_role (int): The role required to access the function.
+
+        Returns:
+            function: The decorated function with role check implemented.
+        """
         def decorator(func):
             def check_cookie(*args, **kwargs):
                 try:
@@ -87,6 +119,15 @@ class Functions:
                 
     @staticmethod
     def route(route):
+        """
+        A decorator to register a function as a route handler.
+
+        Args:
+            route_path (str): The path of the route to handle.
+
+        Returns:
+            function: The decorated function registered as a route handler.
+        """
         def router(func):
             ROUTING_DICT[route] = func
 
@@ -116,6 +157,12 @@ class Functions:
     @staticmethod
     @route("/login")
     def login(*args, **kwargs):
+        """
+        Route handler to process an uploaded image.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
 
         is_verified, username = Functions.verify_credentials(*args, **kwargs)
 
@@ -140,6 +187,12 @@ class Functions:
     @route("/addUser")
     @role(0)
     def signup(*args, **kwargs):
+        """
+        Route handler to process a new user addition.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try:
             
             body = kwargs['body']
@@ -206,8 +259,6 @@ class Functions:
                 'content_type' : 'application/json',
                 'data' : json.dumps({'message': f'Error when trying to remove user: {username}', 'error' : str(e), 'success': False}),
             }
-        
-            
 
     @staticmethod
     @route("/getUsers")
@@ -225,50 +276,17 @@ class Functions:
         except Exception as e:
             print(e)
             traceback.print_exc()
-
-
-    
-    
-    # @staticmethod
-    # @route("/connect_camera")
-    # @role(0)
-    # def create_camera_connection(*args, **kwargs):
-    #     try:
-    #         body = kwargs['body']
-    #         data_dict = json.loads(body)
-
-    #         camera_ip = data_dict['IP']
-
-    #         if camera_ip in (camera_details := radar.get_available_cameras()):
-    #             camera_details = camera_details[camera_ip]
-    #             camera_client = CameraClient(camera_ip, camera_details['port'], camera_details['location'])
-    #             threading.Thread(target=camera_client.start).start()
-    #             camera_clients[camera_ip] = camera_client   
-
-    #             return {
-    #                 'code': 200,
-    #                 'content_type': 'application/json',
-    #                 'data': json.dumps({'message': f'Connected to {camera_ip}'})
-    #             }             
-
-    #     except Exception as e:
-    #         print(e)
-    #         return {
-    #             'code' : 500,
-    #             'content_type' : 'application/json',
-    #             'data' : json.dumps({'message': 'could not establish connection', 'error' : str(e)}),
-    #         }
-
-    #     return {
-    #         'code' : 500,
-    #         'content_type' : 'application/json',
-    #         'data' : json.dumps({'message': 'could not establish connection'}),
-    #     }
     
     @staticmethod
     @route("/disconnect_camera")
     @role(0)
     def disconnect_camera(*args, **kwargs):
+        """
+        Route handler to remove a camera from the system.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try:
             body = kwargs['body']
             data_dict = json.loads(body)
@@ -293,24 +311,17 @@ class Functions:
             'data' : json.dumps({'message': 'could not destroy connection'}),
         }
 
-
-    # @staticmethod
-    # @route("/get_updated_camera_radar")
-    # @role(1)
-    # def get_updated_camera_radar(*args, **kwargs):
-    #     cameras = radar.get_available_cameras()
-
-    #     return {
-    #         'code' : 200,
-    #         'content_type' : 'application/json',
-    #         'data' : json.dumps(cameras)
-    #     }
     
     @staticmethod
     @route("/get_connected_cameras")
     @role(1)
     def get_connected_cameras(*args, **kwargs):
+        """
+        Route handler to get the list of all connected cameras.
 
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         cameras = {}
 
         try:
@@ -342,6 +353,12 @@ class Functions:
     @route("/startLive")
     @role(1)
     def start_live(*args, **kwargs):
+        """
+        Route handler to start live streaming from a specified camera.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try: 
             body = kwargs['body']
             data_dict = json.loads(body)
@@ -379,6 +396,12 @@ class Functions:
     @route("/stopLive")
     @role(1)
     def stop_live(*args, **kwargs):
+        """
+        Route handler to stop live streaming from a specified camera.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try: 
             body = kwargs['body']
             data_dict = json.loads(body)
@@ -437,6 +460,12 @@ class Functions:
     @route("/searchSuspect")
     @role(1)
     def searchSuspect(*args, **kwargs):
+        """
+        Route handler to search a suspect by processing the uploaded images.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try:
             suspect_name, images = Functions.parseSuspectFormData(*args, **kwargs)
 
@@ -470,6 +499,12 @@ class Functions:
     @route('/addSuspectToBlacklist')
     @role(1)
     def addSuspectToBlacklist(*args, **kwargs):
+        """
+        Route handler to add a suspect to the blacklist.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try:
             suspect_name, images = Functions.parseSuspectFormData(*args, **kwargs)
             
@@ -514,6 +549,12 @@ class Functions:
     @route('/checkBlacklist')
     @role(1)
     def checkBlackList(*args, **kwargs):
+        """
+        Route handler to retrieve the blacklist.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try:
             criminalsFound = []
             
@@ -575,6 +616,12 @@ class Functions:
     @route('/getBlacklist')
     @role(1)
     def getBlacklist(*args, **kwargs):
+        """
+        Route handler to get the blacklist.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try:
             global blacklist
                
@@ -600,6 +647,12 @@ class Functions:
     @route('/removeBlacklistSuspect')
     @role(1)
     def removeBlacklistSuspect(*args, **kwargs):
+        """
+        Route handler to remove a suspect from the blacklist.
+
+        Returns:
+            dict: The response containing status code, content type, and data.
+        """
         try:
             body = kwargs['body']
             data_dict = json.loads(body)
