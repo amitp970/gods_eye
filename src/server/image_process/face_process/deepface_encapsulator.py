@@ -11,7 +11,7 @@ from deepface.models.FacialRecognition import FacialRecognition
 from deepface import DeepFace
 
 class FeatureExtractor:
-    FACENET_THRESHOLD_EUCLIDEAN = 60
+    FACENET_THRESHOLD_EUCLIDEAN = 30
 
     def __init__(self, model_name = "Facenet") -> None:
         self.model: FacialRecognition  = DeepFace.build_model(model_name)

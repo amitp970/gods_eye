@@ -16,6 +16,7 @@ from flask_socketio import SocketIO, emit
 import socket
 import traceback
 import threading
+import ssl
 
 from .config import settings
 from src.core.protocol import receive_data
@@ -87,7 +88,10 @@ class LiveServer:
         self.running = True
         self.server_sock.settimeout(5)
 
-        threading.Thread(target=socketio.run, args=(app, settings.HTTP_SERVER_IP, 5000)).start()
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_context.load_cert_chain(certfile=settings.SSL_CERT_FILE, keyfile=settings.SSL_KEY_FILE)
+
+        threading.Thread(target=socketio.run, args=(app, settings.HTTP_SERVER_IP, 5000), kwargs={'ssl_context': ssl_context}).start()
         threading.Thread(target=self.start_server).start()
 
     def stop(self):

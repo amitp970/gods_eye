@@ -145,7 +145,7 @@ class CameraClient:
                 continue
                 
             if self.send_frame(sock=self.sock, frame=frame_data['frame'], time=frame_data['time']):
-                time.sleep(1)
+                time.sleep(0.2)
 
     def server_communication(self):
         """

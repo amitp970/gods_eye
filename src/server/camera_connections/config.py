@@ -12,5 +12,9 @@ class Settings(BaseSettings):
     HTTP_SERVER_CAMERA_LISTEN_PORT: int
     HTTP_SERVER_CAMERA_LIVE_PORT: int
 
+    SSL_CERT_FILE: str
+    SSL_KEY_FILE: str
+
+
 
 settings = Settings()

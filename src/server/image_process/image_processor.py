@@ -165,7 +165,7 @@ class ImageProcessor:
                         if os.path.isfile(file_path):
                             if not file_path in self.file_paths:
                                 self.file_paths.add(location=location, file_path=file_path)
-            time.sleep(5)
+            time.sleep(1)
 
     def get_prediction_data(self, boxes):
         """
@@ -224,7 +224,7 @@ class ImageProcessor:
                     self.process_image_path(location=location, file_path=file_path)
                     self.file_paths.remove(location=location, file_path=file_path)
                 else:
-                    time.sleep(2)
+                    time.sleep(1)
             except Exception as e:
                 print(e)
                 traceback.print_exc()
