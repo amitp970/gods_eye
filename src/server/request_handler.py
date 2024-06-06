@@ -135,6 +135,7 @@ class RequestHandler:
             return self.generate_response(**response_dict)
             
         return self.not_found()
+    
     @Functions.role(1)
     def handle_private_resource_request(self, file_path, *args, **kwargs):
         """

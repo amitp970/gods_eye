@@ -5,7 +5,7 @@ import faiss
 import os
 import threading
 
-from .modals.person import Person
+from .models.person import Person
 from .deepface_encapsulator import FeatureExtractor
 
 class ThreadSafeFaissIndex:

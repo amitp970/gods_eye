@@ -30,12 +30,9 @@ import uuid
 import os
 
 from .auth.verifier import Verifier
-from .camera_connections.camera_radar import CameraRadar
-from .camera_connections.camera_client import CameraClient
 from .camera_connections.camera_connections import CameraConnections, CameraConnection
 from .camera_connections.live_server import LiveServer
 from .image_process.image_processor import ImageProcessor
-
 
 PRIVATE_FILES_PATH = "src/server/files/private"
 
@@ -55,7 +52,6 @@ services.append(image_processor)
 
 for service in services:
     service.start()
-
 
 os.makedirs(f'{PRIVATE_FILES_PATH}/blacklist/profile_photos/', exist_ok=True)
 blacklist = {}
@@ -141,6 +137,7 @@ class Functions:
     def verify_credentials(*args, **kwargs):
         try:
             body = kwargs['body']
+            
             data_dict = json.loads(body)
 
             username = data_dict['username']
@@ -151,9 +148,7 @@ class Functions:
             print(e)
         
         return False, "unverified"
-
-
-
+    
     @staticmethod
     @route("/login")
     def login(*args, **kwargs):
@@ -182,7 +177,6 @@ class Functions:
                 'data' : json.dumps({'message': 'Unauthorized'}),
             }
     
-
     @staticmethod
     @route("/addUser")
     @role(0)
@@ -311,7 +305,6 @@ class Functions:
             'data' : json.dumps({'message': 'could not destroy connection'}),
         }
 
-    
     @staticmethod
     @route("/get_connected_cameras")
     @role(1)
@@ -435,7 +428,6 @@ class Functions:
                 'data' : json.dumps({'message': 'Error on stopping live video'}),
             }
 
-    
     @staticmethod
     def parseSuspectFormData(*args, **kwargs):
         
@@ -454,7 +446,6 @@ class Functions:
             images[idx] = frame
 
         return suspect_name, images
-
 
     @staticmethod
     @route("/searchSuspect")
@@ -492,8 +483,6 @@ class Functions:
                 'content_type' : 'application/json',
                 'data' : json.dumps({'message': 'Failed while searching suspect'}),
             }
-        
-
 
     @staticmethod
     @route('/addSuspectToBlacklist')
@@ -544,7 +533,6 @@ class Functions:
                 'data' : json.dumps({'message': 'Failed while adding suspect to blacklist'}),
             }
         
-
     @staticmethod
     @route('/checkBlacklist')
     @role(1)
@@ -610,7 +598,6 @@ class Functions:
         jpg_as_text = jpg_as_text.decode('utf-8')
         
         return jpg_as_text
-
 
     @staticmethod
     @route('/getBlacklist')

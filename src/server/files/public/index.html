@@ -128,75 +128,41 @@
         
     </form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+
+    
     <script>
-        let isLoginView = true;
+        
         function validateAndSubmitForm() {
-            if (isLoginView) {
-                var username = document.getElementById('username').value;
-                var password = document.getElementById('password').value;
-                if (username.trim() === "" || password.trim() === "") {
-                    alert("Both username and password are required!");
-                    return false;
-                }
-                var hashedPassword = CryptoJS.SHA256(password).toString();
-
-                // Assemble data to send
-                var data = JSON.stringify({
-                    username: username,
-                    password: password  // Consider sending the hash for additional security
-                });
-
-                // Create an AJAX request to send the data
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "/login", true);
-                xhr.setRequestHeader("Content-Type", "application/json");
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        window.location.href = '/home.html'
-                    } else if (xhr.readyState === 4) {
-                        alert("Login failed: " + xhr.responseText);
-                    }
-                };
-                xhr.send(data);
-            } else {
-                var username = document.getElementById('newUsername').value;
-                var password = document.getElementById('newPassword').value;
-                if (username.trim() === "" || password.trim() === "") {
-                    alert("Both username and password are required!");
-                    return false;
-                }
-                var hashedPassword = CryptoJS.SHA256(password).toString();
-
-                // Assemble data to send
-                var data = JSON.stringify({
-                    username: username,
-                    password: password  // Consider sending the hash for additional security
-                });
-
-                // Create an AJAX request to send the data
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "/signup", true);
-                xhr.setRequestHeader("Content-Type", "application/json");
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        alert("Sign up successful");
-                    } else if (xhr.readyState === 4) {
-                        alert("Sign up failed: " + xhr.responseText);
-                    }
-                };
-                xhr.send(data);
-
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            if (username.trim() === "" || password.trim() === "") {
+                alert("Both username and password are required!");
+                return false;
             }
+            var hashedPassword = CryptoJS.SHA256(password).toString();
+
+            // Assemble data to send
+            var data = JSON.stringify({
+                username: username,
+                password: password  // Consider sending the hash for additional security
+            });
+
+
+            // Create an AJAX request to send the data
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/login", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    window.location.href = '/home.html'
+                } else if (xhr.readyState === 4) {
+                    alert("Login failed: " + xhr.responseText);
+                }
+            };
+            xhr.send(data);
 
             return false; // Prevent the form from submitting traditionally
-        }
-
-        function toggleView() {
-            isLoginView = !isLoginView;
-            document.getElementById('loginView').style.display = isLoginView ? 'block' : 'none';
-            document.getElementById('signupView').style.display = isLoginView ? 'none' : 'block';
-            document.querySelector('.toggle-btn').innerText = isLoginView ? 'Switch to Signup' : 'Switch to Login';
-        }
+        } 
 
     </script>
 </body>
