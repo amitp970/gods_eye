@@ -1,4 +1,5 @@
 venv/
+camVenv/
 /data/faces
 *.pyc
 *.jpg
